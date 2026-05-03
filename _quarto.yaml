@@ -7,7 +7,7 @@ website:
   site-url: "https://research.yifen9.li"
   description: "LI Yifeng's Research"
   repo-url: https://github.com/yifen9/research
-  favicon: https://assets.yifen9.li/shared/favicon.png
+  favicon: favicon.png
   twitter-card: true
   page-navigation: true
   bread-crumbs: true
