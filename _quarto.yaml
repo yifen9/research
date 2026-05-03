@@ -4,9 +4,11 @@ project:
 
 website:
   title: "LI Yifeng's Research"
-  site-url: "https://research.yifen9.li"
   description: "LI Yifeng's Research"
+  site-url: "https://research.yifen9.li"
+  issue-url: https://github.com/yifen9/research/issues/new/choose
   repo-url: https://github.com/yifen9/research
+  repo-actions: [edit, issue, source]
   favicon: favicon.png
   twitter-card: true
   page-navigation: true
