@@ -4,7 +4,7 @@ project:
 
 website:
   title: "LI Yifeng's Research"
-  site-url: "https://research"
+  site-url: "https://research.yifen9.li"
   description: "LI Yifeng's Research"
   repo-url: https://github.com/yifen9/research
   favicon: icon.png
@@ -15,6 +15,7 @@ website:
   llms-txt: true
   navbar:
     logo: icon.png
+    title: LI Yifeng
     search: true
     pinned: true
     left:
