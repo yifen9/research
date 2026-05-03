@@ -19,12 +19,12 @@ website:
     search: true
     pinned: true
     left:
-      - text: Home
-        href: https://yifen9.li
       - text: Blog
         href: https://blog.yifen9.li
       - text: Research
         href: https://research.yifen9.li
+      - text: About
+        href: https://yifen9.li
     right:
       - icon: person
         href: https://yifen9.li
