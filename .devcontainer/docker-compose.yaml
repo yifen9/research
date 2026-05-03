@@ -1,0 +1,11 @@
+services:
+  research-dev:
+    image: ghcr.io/yifen9/research-dev
+    container_name: research-dev
+    working_dir: /workspace
+    volumes:
+      - "..:/workspace"
+    command: >
+      bash -lc "
+        exec sleep infinity
+      "

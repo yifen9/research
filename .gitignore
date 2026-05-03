@@ -1,0 +1,9 @@
+/.quarto/
+build
+index_files
+*.aux
+*.log
+*.out
+*.gz
+
+**/*.quarto_ipynb

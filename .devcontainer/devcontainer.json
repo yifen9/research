@@ -1,0 +1,15 @@
+{
+  "dockerComposeFile": "docker-compose.yaml",
+  "service": "research-dev",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "jeff-hykin.better-dockerfile-syntax",
+        "tamasfe.even-better-toml",
+        "nefrob.vscode-just-syntax"
+      ]
+    }
+  }
+}
