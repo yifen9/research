@@ -1,16 +1,119 @@
 word:
+  - allow
+  - any
+  - append
+  - arg
   - argv
-  - data
+  - ast
+  - audit
+  - bad
+  - base
+  - best
   - body
+  - buffer
+  - byte
+  - check
+  - child
+  - code
+  - comp
+  - config
   - conf
+  - console
+  - context
+  - count
+  - csv
+  - current
+  - data
+  - date
+  - default
+  - depth
+  - dir
+  - doc
+  - docker
+  - emit
+  - encoding
+  - ensure
+  - env
+  - error
+  - eta
+  - event
+  - except
+  - extra
+  - field
+  - file
+  - finger
+  - folder
+  - header
+  - hasher
+  - index
+  - io
+  - item
+  - json
+  - jsonl
   - key
+  - kind
+  - label
+  - level
+  - limit
+  - line
+  - list
+  - load
+  - logger
   - main
+  - make
+  - map
+  - max
+  - message
+  - meta
   - name
-  - out
+  - nest
+  - node
+  - output
+  - page
+  - parquet
+  - param
+  - part
   - path
+  - payload
+  - pct
+  - pool
+  - pq
+  - prev
+  - print
+  - profile
+  - progress
+  - reader
+  - record
+  - rel
+  - remain
   - root
-  - sys
+  - rotate
+  - row
+  - rows
+  - rule
+  - scan
+  - segment
+  - seen
+  - sha
+  - sink
+  - size
+  - skip
+  - start
+  - status
+  - stem
+  - style
+  - table
+  - target
+  - temp
   - text
+  - time
+  - title
+  - total
+  - trace
+  - transient
+  - tree
   - value
+  - word
+  - write
+  - writer
   - yaml
-  - pathlib

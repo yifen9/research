@@ -1,0 +1,30 @@
+---
+title: "Name"
+---
+
+# Name
+
+```yaml
+name:
+  case:
+    python: snake
+    file: kebab
+    dir: kebab
+    yaml: snake
+  number:
+    dir: single
+    file: single
+    module: single
+  word:
+    source: rule/word
+    strict: true
+  allow:
+  - .git
+  - .github
+  - .devcontainer
+  - README.md
+  - LICENSE
+  - Dockerfile
+  - justfile
+  - _quarto.yaml
+```

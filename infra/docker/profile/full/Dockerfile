@@ -1,37 +1,46 @@
-FROM debian:bookworm-slim
+FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04
 
-ENV DEBIAN_FRONTEND=noninteractive LANG=C.UTF-8 LC_ALL=C.UTF-8
+ENV DEBIAN_FRONTEND=noninteractive
 
-RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
-      bash \
-      ca-certificates \
-      curl \
-      git \
-      build-essential \
-      pkg-config \
-      libssl-dev \
-      python3 \
-      python3-venv \
-      python3-dev \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        git \
+        gnupg \
+        locales \
+        sudo \
+        wget \
     && rm -rf /var/lib/apt/lists/*
 
-ENV UV_CACHE_DIR=/opt/uv-cache
-RUN mkdir -p /opt/uv-cache && chmod -R 777 /opt/uv-cache
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-RUN install -m 0755 /root/.local/bin/uv /usr/local/bin/uv
 
-ENV RUSTUP_HOME=/opt/rustup
-ENV CARGO_HOME=/opt/cargo
-ENV PATH=/opt/cargo/bin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ENV PIPX_HOME=/opt/pipx
+ENV PIPX_BIN_DIR=/usr/local/bin
 
-RUN mkdir -p /opt/rustup /opt/cargo && chmod -R 777 /opt/rustup /opt/cargo
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable
-RUN rustup component add rustfmt clippy
-RUN cargo install just
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        pipx \
+        python3 \
+        python3-pip \
+        python3-venv \
+    && pipx install uv==0.6.17 \
+    && python3 --version \
+    && uv --version \
+    && rm -rf /var/lib/apt/lists/*
+
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        just \
+    && just --version \
+    && rm -rf /var/lib/apt/lists/*
+
+
+RUN wget -O /tmp/quarto.deb https://github.com/quarto-dev/quarto-cli/releases/download/v1.6.43/quarto-1.6.43-linux-amd64.deb \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends /tmp/quarto.deb \
+    && quarto --version \
+    && rm -rf /var/lib/apt/lists/* /tmp/quarto.deb
+
 
 WORKDIR /workspace
-RUN git config --system --add safe.directory /workspace
-
-CMD ["bash","-lc","exec sleep infinity"]

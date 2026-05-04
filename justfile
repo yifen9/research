@@ -5,8 +5,53 @@ default:
 
 init:
     just venv && \
+    just sync
+
+venv:
+    test -d .venv || uv venv
+
+sync:
+    uv sync --all-packages
+
+sync-lock:
+    uv sync --locked --all-packages
+
+up:
+    uv lock --upgrade
+
+add PKG:
+    uv add {{PKG}}
+
+add-dev PKG:
+    uv add --dev {{PKG}}
+
+rm PKG:
+    uv remove {{PKG}}
+
+rm-dev PKG:
+    uv remove --dev {{PKG}}
+
+fmt:
     just sync && \
-    quarto check
+    uv run ruff format .
+
+fmt-check:
+    uv run ruff format --check .
+
+lint:
+    uv run ruff check . --fix
+
+lint-check:
+    uv run ruff check .
+
+rule-check:
+    uv run python script/check_rule.py .
+
+rule-write:
+    uv run python script/write_rule.py . doc/rule context/rule.md
+
+docker-write:
+    uv run python script/write_docker.py . full
 
 q-doctor:
     quarto check
@@ -27,12 +72,3 @@ q-clean:
 q-rebuild:
     just q-clean
     just q-render
-
-q-serve:
-    python3 -m http.server 8000 --directory build
-
-check:
-    python script/check_rule.py .
-
-rule:
-    python script/write_rule.py .

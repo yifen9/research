@@ -1,57 +1,137 @@
-import pathlib
+from __future__ import annotations
+
+from pathlib import Path
 import sys
-import yaml
+from typing import Any
+
+from research.io.text import read_text, write_text
+from research.io.yaml import read_yaml
+from research.util.jlog import jline
+from research.util.logger import Logger
+from research.util.progress import make_progress
+from research.util.run import Run, make_run, run_err, run_ok
 
 
-def read_yaml(path):
-    text = path.read_text(encoding="utf-8")
-    data = yaml.safe_load(text)
-    return data
+def bind_text(text: str, data: dict[str, Any]) -> str:
+    output = text
 
-
-def read_text(path):
-    text = path.read_text(encoding="utf-8")
-    return text
-
-
-def write_text(path, text):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(text, encoding="utf-8")
-
-
-def bind_text(text, data):
-    out = text
     for name, value in data["version"].items():
         key = "{{" + name + "}}"
-        out = out.replace(key, str(value))
-    return out
+        output = output.replace(key, str(value))
+
+    return output
 
 
-def make_file(root):
-    conf = root / "infra" / "docker" / "profile" / "full" / "build.yaml"
-    data = read_yaml(conf)
-    body = []
+def make_docker(root: Path, profile: str, data: dict[str, Any], logger: Logger) -> str:
+    body: list[str] = []
+    part = data["part"]
+    progress = make_progress(logger, "docker", len(part))
+
+    logger.info(jline("docker", "write", "make", {"profile": profile}))
     body.append(f"FROM {data['image']['base']}\n")
+    progress.start()
 
-    for name in data["part"]:
+    for name in part:
         path = root / "infra" / "docker" / "part" / name / "Dockerfile"
+        logger.info(jline("docker", "write", "part", {"name": name, "path": str(path)}))
         text = read_text(path)
         body.append(bind_text(text, data))
         body.append("")
+        progress.step(1)
 
-    body.append('WORKDIR /workspace\n')
+    progress.finish()
+    body.append("WORKDIR /workspace\n")
+
     return "\n".join(body)
 
 
-def main(argv):
-    if argv.__len__() != 2:
-        sys.stderr.write("usage: write_docker.py ROOT\n")
-        sys.exit(1)
+def read_build(root: Path, profile: str, logger: Logger) -> dict[str, Any]:
+    path = root / "infra" / "docker" / "profile" / profile / "build.yaml"
+    logger.info(jline("docker", "write", "read", {"path": str(path)}))
+    return read_yaml(str(path))
 
-    root = pathlib.Path(argv[1])
-    text = make_file(root)
-    path = root / "infra" / "docker" / "profile" / "full" / "Dockerfile"
-    write_text(path, text)
+
+def write_docker(root: Path, profile: str, logger: Logger) -> Path:
+    data = read_build(root, profile, logger)
+    text = make_docker(root, profile, data, logger)
+    path = root / "infra" / "docker" / "profile" / profile / "Dockerfile"
+    logger.info(jline("docker", "write", "save", {"path": str(path)}))
+    return write_text(path, text)
+
+
+def fail(run: Run, comp: str, error: BaseException) -> None:
+    run.logger.error(
+        jline(
+            "script",
+            comp,
+            "error",
+            {
+                "type": type(error).__name__,
+                "message": str(error),
+                "run": run.run_dir,
+            },
+        )
+    )
+    run_err(run, error, {"comp": comp})
+    raise error
+
+
+def main(argv: list[str]) -> None:
+    if len(argv) != 3:
+        raise ValueError("usage: write_docker.py ROOT PROFILE")
+
+    root = Path(argv[1])
+    profile = argv[2]
+    run = make_run(
+        root=root,
+        name="write-docker",
+        params={
+            "task": "write-docker",
+            "profile": profile,
+        },
+        script=root / "script" / "write_docker.py",
+        src=root / "src",
+        config=root / "infra" / "docker" / "profile" / profile / "build.yaml",
+    )
+
+    try:
+        run.logger.info(
+            jline(
+                "script",
+                "docker",
+                "start",
+                {
+                    "root": str(root),
+                    "profile": profile,
+                    "run": run.run_dir,
+                },
+            )
+        )
+
+        path = write_docker(root, profile, run.logger)
+
+        run.logger.info(
+            jline(
+                "script",
+                "docker",
+                "ok",
+                {
+                    "path": str(path),
+                    "run": run.run_dir,
+                },
+            )
+        )
+        run_ok(
+            run,
+            {
+                "task": "write-docker",
+                "path": str(path),
+                "profile": profile,
+            },
+        )
+
+    except (ValueError, KeyError, FileNotFoundError, RuntimeError, TypeError) as error:
+        fail(run, "docker", error)
 
 
 if __name__ == "__main__":
