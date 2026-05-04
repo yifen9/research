@@ -1,0 +1,16 @@
+word:
+  - argv
+  - data
+  - body
+  - conf
+  - key
+  - main
+  - name
+  - out
+  - path
+  - root
+  - sys
+  - text
+  - value
+  - yaml
+  - pathlib

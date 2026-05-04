@@ -1,0 +1,19 @@
+word:
+  - add
+  - build
+  - check
+  - clean
+  - copy
+  - fetch
+  - init
+  - list
+  - load
+  - make
+  - push
+  - read
+  - render
+  - scan
+  - sync
+  - test
+  - update
+  - write

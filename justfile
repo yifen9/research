@@ -4,6 +4,8 @@ default:
     just --list
 
 init:
+    just venv && \
+    just sync && \
     quarto check
 
 q-doctor:
@@ -28,3 +30,9 @@ q-rebuild:
 
 q-serve:
     python3 -m http.server 8000 --directory build
+
+check:
+    python script/check_rule.py .
+
+rule:
+    python script/write_rule.py .

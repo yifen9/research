@@ -1,0 +1,12 @@
+image:
+  base: mcr.microsoft.com/devcontainers/base:ubuntu-24.04
+
+version:
+  uv: 0.6.17
+  quarto: 1.6.43
+
+part:
+  - core
+  - python
+  - just
+  - quarto

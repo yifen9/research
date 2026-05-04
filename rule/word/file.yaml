@@ -1,0 +1,22 @@
+word:
+  - docker
+  - compose
+  - quarto
+  - latex
+  - python
+  - julia
+  - rust
+  - r
+  - yaml
+  - toml
+  - json
+  - qmd
+  - md
+  - css
+  - scss
+  - git
+  - github
+  - readme
+  - license
+  - just
+  - justfile

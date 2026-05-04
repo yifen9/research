@@ -1,0 +1,15 @@
+config:
+  rank:
+    - yaml
+    - toml
+    - json
+
+  yaml:
+    main: true
+
+  toml:
+    allow: true
+
+  json:
+    api: true
+    hand: false
