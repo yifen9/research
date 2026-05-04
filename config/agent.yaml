@@ -1,0 +1,10 @@
+agent:
+  mode: human
+
+  auto:
+    allow_risk:
+      - low
+    require_check: true
+    allow_rule_change: false
+    allow_workflow_change: false
+    allow_arch_change: false

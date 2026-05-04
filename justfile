@@ -107,6 +107,36 @@ s-agent-change-decide change decision:
 s-agent-change-commit change commit:
     uv run python script/agent/change/commit.py . out/agent/change "{{change}}" "{{commit}}"
 
+s-agent-change-new-latest title:
+    worker=`uv run python script/agent/query/latest.py . out/agent/session session worker`; uv run python script/agent/change/new.py . out/agent/change out/agent/session "{{title}}" "$worker"
+
+s-agent-change-review-latest status risk:
+    change=`uv run python script/agent/query/latest.py . out/agent/change change active`; reviewer=`uv run python script/agent/query/latest.py . out/agent/session session reviewer`; uv run python script/agent/change/review.py . out/agent/change out/agent/session "$change" "$reviewer" "{{status}}" "{{risk}}"
+
+s-agent-change-approve-latest:
+    uv run python script/agent/change/approve.py . out/agent/change latest
+
+s-agent-session-retire session reason:
+    uv run python script/agent/session/retire.py . out/agent/session "{{session}}" "{{reason}}"
+
+s-agent-session-retire-latest role reason:
+    session=`uv run python script/agent/query/latest.py . out/agent/session session "{{role}}"`; uv run python script/agent/session/retire.py . out/agent/session "$session" "{{reason}}"
+
+s-agent-change-auto-latest:
+    uv run python script/agent/change/auto.py . out/agent/change config/agent.yaml latest
+
+s-agent-change-auto change:
+    uv run python script/agent/change/auto.py . out/agent/change config/agent.yaml "{{change}}"
+
+s-agent-context-write change:
+    uv run python script/agent/context/write.py . agent/prompt context out/agent/change out/agent/context "{{change}}"
+
+s-agent-context-write-latest:
+    change=`uv run python script/agent/query/latest.py . out/agent/change change active`; uv run python script/agent/context/write.py . agent/prompt context out/agent/change out/agent/context "$change"
+
+s-agent-provider-check:
+    uv run python script/agent/provider/check.py . config/provider.yaml context/index.md out/temp/agent/provider/check.md
+
 q-doctor:
     quarto check
     quarto --version
