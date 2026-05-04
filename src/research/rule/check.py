@@ -139,7 +139,12 @@ def check_try(node: ast.Try, path: Path) -> list[Bad]:
     return bad
 
 
-def check_func(node: ast.FunctionDef | ast.AsyncFunctionDef, pool: set[str], path: Path, rule: dict[str, Any]) -> list[Bad]:
+def check_func(
+    node: ast.FunctionDef | ast.AsyncFunctionDef,
+    pool: set[str],
+    path: Path,
+    rule: dict[str, Any],
+) -> list[Bad]:
     bad: list[Bad] = []
     max_nest = rule["code"]["nest"]["max"]
 
@@ -179,7 +184,9 @@ def check_code(path: Path, pool: set[str], rule: dict[str, Any]) -> list[Bad]:
         if isinstance(node, ast.With):
             for item in node.items:
                 if item.optional_vars is not None:
-                    bad.extend(check_target(item.optional_vars, pool, path, node.lineno))
+                    bad.extend(
+                        check_target(item.optional_vars, pool, path, node.lineno)
+                    )
 
         if isinstance(node, ast.Try):
             bad.extend(check_try(node, path))

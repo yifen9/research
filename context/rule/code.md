@@ -1,8 +1,10 @@
----
-title: "Code"
----
-
 # Code
+
+## Source
+
+- source: rule/code.yaml
+
+## Content
 
 ```yaml
 code:

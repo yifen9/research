@@ -1,8 +1,10 @@
----
-title: "Name"
----
-
 # Name
+
+## Source
+
+- source: rule/name.yaml
+
+## Content
 
 ```yaml
 name:

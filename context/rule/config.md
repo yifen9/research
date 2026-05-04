@@ -1,8 +1,10 @@
----
-title: "Config"
----
-
 # Config
+
+## Source
+
+- source: rule/config.yaml
+
+## Content
 
 ```yaml
 config:

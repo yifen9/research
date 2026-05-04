@@ -1,13 +1,14 @@
----
-title: "Word"
----
-
 # Word
 
-## act
+## Source
+
+- source: rule/word/*.yaml
+
+## Content
+
+### Act
 
 ```yaml
-
 word:
 - add
 - build
@@ -27,13 +28,11 @@ word:
 - test
 - update
 - write
-
 ```
 
-## core
+### Core
 
 ```yaml
-
 word:
 - act
 - agent
@@ -65,13 +64,11 @@ word:
 - template
 - tool
 - word
-
 ```
 
-## file
+### File
 
 ```yaml
-
 word:
 - docker
 - compose
@@ -94,13 +91,11 @@ word:
 - license
 - just
 - justfile
-
 ```
 
-## py
+### Py
 
 ```yaml
-
 word:
 - allow
 - any
@@ -220,5 +215,4 @@ word:
 - write
 - writer
 - yaml
-
 ```

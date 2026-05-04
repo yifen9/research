@@ -77,10 +77,10 @@ def load_run(run_dir: Path, limit: int, logger: Logger) -> list[dict[str, Any]]:
     return output
 
 
-def make_index(run_dir: Path, target: Path, limit: int) -> str:
+def make_manifest(run_dir: Path, target: Path, limit: int) -> str:
     body: list[str] = []
 
-    body.append("# Run Context\n")
+    body.append("# Run Manifest\n")
     body.append("## Purpose\n")
     body.append("This directory summarizes recent execution state for agents.\n")
     body.append("## File\n")
@@ -94,6 +94,8 @@ def make_index(run_dir: Path, target: Path, limit: int) -> str:
     body.append("- Read latest.md first.")
     body.append("- Use recent.md only when recent history matters.")
     body.append("- Full audit artifacts remain under out/run.")
+    body.append("- Do not edit context/run/*.md manually.")
+    body.append("- Regenerate this directory with context-run-write.")
     body.append("")
 
     return "\n".join(body)
@@ -138,11 +140,16 @@ def make_latest(data: list[dict[str, Any]]) -> str:
 
 
 def write_context(
-    target: Path, run_dir: Path, limit: int, data: list[dict[str, Any]]
+    target: Path,
+    run_dir: Path,
+    limit: int,
+    data: list[dict[str, Any]],
 ) -> list[Path]:
     output: list[Path] = []
 
-    output.append(write_text(target / "index.md", make_index(run_dir, target, limit)))
+    output.append(
+        write_text(target / "_manifest.md", make_manifest(run_dir, target, limit))
+    )
     output.append(write_text(target / "recent.md", make_recent(data)))
     output.append(write_text(target / "latest.md", make_latest(data)))
 

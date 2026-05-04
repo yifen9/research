@@ -56,7 +56,7 @@ s-context-profile-user-write:
 s-context-run-write:
     uv run python script/context/run/write.py . out/run context/run 16
 
-context-rule-write:
+s-context-rule-write:
     uv run python script/context/rule/write.py . rule context/rule
 
 q-doctor:

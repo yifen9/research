@@ -1,8 +1,10 @@
----
-title: "Agent"
----
-
 # Agent
+
+## Source
+
+- source: rule/agent.yaml
+
+## Content
 
 ```yaml
 agent:

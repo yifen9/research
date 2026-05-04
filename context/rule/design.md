@@ -1,8 +1,10 @@
----
-title: "Design"
----
-
 # Design
+
+## Source
+
+- source: rule/design.yaml
+
+## Content
 
 ```yaml
 design:

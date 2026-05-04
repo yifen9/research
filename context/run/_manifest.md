@@ -1,4 +1,4 @@
-# Run Context
+# Run Manifest
 
 ## Purpose
 
@@ -20,3 +20,5 @@ This directory summarizes recent execution state for agents.
 - Read latest.md first.
 - Use recent.md only when recent history matters.
 - Full audit artifacts remain under out/run.
+- Do not edit context/run/*.md manually.
+- Regenerate this directory with context-run-write.

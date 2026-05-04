@@ -106,7 +106,9 @@ def make_manifest(rule_dir: Path, target: Path, index: dict[str, Any]) -> str:
 
     body.append("# Rule Manifest\n")
     body.append("## Purpose\n")
-    body.append("This directory contains agent-readable rule documents generated from rule YAML files.\n")
+    body.append(
+        "This directory contains agent-readable rule documents generated from rule YAML files.\n"
+    )
     body.append("## Source\n")
     body.append(f"- rule_dir: {rule_dir}")
     body.append(f"- target: {target}")
