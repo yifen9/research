@@ -55,8 +55,9 @@ s-context-write:
     just s-context-run-write
     just s-context-rule-write
     just s-context-project-write
-    just s-context-index-write
     just s-context-workflow-write
+    just s-context-agent-write
+    just s-context-index-write
 
 s-context-profile-user-write:
     uv run python script/context/profile/user/write.py . https://github.com/yifen9/yifen9.li/archive/refs/heads/main.zip out/temp/source/profile/user context/profile/user
@@ -88,6 +89,9 @@ s-context-workflow-write:
     just s-context-workflow-lifecycle-write
     just s-context-workflow-artifact-write
     just s-context-index-write
+
+s-context-agent-write:
+    uv run python script/context/agent/write.py . agent/doc context/agent
 
 s-context-index-write:
     uv run python script/context/index/write.py . context
@@ -148,6 +152,27 @@ s-agent-run-worker-latest:
 
 s-agent-run-reviewer-latest:
     uv run python script/agent/run/reviewer.py . config/provider.yaml out/agent/context out/agent/change latest latest
+
+s-agent-smoke-human:
+    uv run python script/agent/smoke/human.py . config/agent.yaml out/agent/session out/agent/change out/agent/context
+
+s-agent-patch-check change:
+    uv run python script/agent/patch/check.py . out/agent/change "{{change}}"
+
+s-agent-patch-check-latest:
+    change=`uv run python script/agent/query/latest.py . out/agent/change change active`; uv run python script/agent/patch/check.py . out/agent/change "$change"
+
+s-agent-patch-apply change:
+    uv run python script/agent/patch/apply.py . out/agent/change config/agent.yaml "{{change}}"
+
+s-agent-patch-apply-latest:
+    change=`uv run python script/agent/query/latest.py . out/agent/change change active`; uv run python script/agent/patch/apply.py . out/agent/change config/agent.yaml "$change"
+
+s-agent-task-check-latest:
+    change=`uv run python script/agent/query/latest.py . out/agent/change change active`; uv run python script/agent/change/check.py . out/agent/change "$change"
+
+s-agent-task-latest:
+    change=`uv run python script/agent/query/latest.py . out/agent/change change active`; uv run python script/agent/change/task.py . config/agent.yaml config/provider.yaml context out/agent/change "$change"
 
 q-doctor:
     quarto check

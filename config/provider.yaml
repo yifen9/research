@@ -1,5 +1,5 @@
 provider:
   name: gemini
-  model: gemini-3-flash-preview
+  model: gemini-pro-latest
   timeout: 120
   max_token: 8192

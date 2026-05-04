@@ -79,6 +79,22 @@ The failure proposal must include:
 - relevant error message
 - suggested next action
 
+## Patch Output
+
+If the task requires modifying repository files, write a standard unified diff to:
+
+```text
+out/agent/change/<change-id>/patch.diff
+```
+
+The patch must be compatible with:
+
+```bash
+git apply --check out/agent/change/<change-id>/patch.diff
+```
+
+Do not modify files directly when patch mode is requested.
+
 ## Final Rule
 
 Do not claim success unless checks passed.
