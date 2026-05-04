@@ -9,7 +9,7 @@ from research.io.yaml import read_yaml
 from research.util.jlog import jline
 from research.util.logger import Logger
 from research.util.progress import make_progress
-from research.util.run import Run, make_run, run_err, run_ok
+from research.util.run import Run, make_run, run_err, run_ok, task_name
 
 
 def bind_text(text: str, data: dict[str, Any]) -> str:
@@ -78,20 +78,24 @@ def fail(run: Run, comp: str, error: BaseException) -> None:
 
 def main(argv: list[str]) -> None:
     if len(argv) != 3:
-        raise ValueError("usage: write_docker.py ROOT PROFILE")
+        raise ValueError("usage: write.py ROOT PROFILE")
 
-    root = Path(argv[1])
+    root = Path(argv[1]).resolve()
     profile = argv[2]
+    script = Path(__file__).resolve()
+    task = task_name(root, script)
+    config = root / "infra" / "docker" / "profile" / profile / "build.yaml"
+
     run = make_run(
         root=root,
-        name="write-docker",
+        name=task,
         params={
-            "task": "write-docker",
+            "task": task,
             "profile": profile,
         },
-        script=root / "script" / "write_docker.py",
+        script=script,
         src=root / "src",
-        config=root / "infra" / "docker" / "profile" / profile / "build.yaml",
+        config=config,
     )
 
     try:
@@ -103,6 +107,7 @@ def main(argv: list[str]) -> None:
                 {
                     "root": str(root),
                     "profile": profile,
+                    "script": str(script),
                     "run": run.run_dir,
                 },
             )
@@ -124,7 +129,7 @@ def main(argv: list[str]) -> None:
         run_ok(
             run,
             {
-                "task": "write-docker",
+                "task": task,
                 "path": str(path),
                 "profile": profile,
             },

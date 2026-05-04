@@ -44,14 +44,20 @@ lint:
 lint-check:
     uv run ruff check .
 
-rule-check:
-    uv run python script/check_rule.py .
+s-rule-check:
+    uv run python script/rule/check.py .
 
-rule-write:
-    uv run python script/write_rule.py . doc/rule context/rule.md
+s-infra-docker-write:
+    uv run python script/infra/docker/write.py . full
 
-docker-write:
-    uv run python script/write_docker.py . full
+s-context-profile-user-write:
+    uv run python script/context/profile/user/write.py . https://github.com/yifen9/yifen9.li/archive/refs/heads/main.zip out/temp/source/profile/user context/profile/user
+
+s-context-run-write:
+    uv run python script/context/run/write.py . out/run context/run 16
+
+context-rule-write:
+    uv run python script/context/rule/write.py . rule context/rule
 
 q-doctor:
     quarto check

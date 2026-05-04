@@ -41,6 +41,37 @@ def list_meta(base: str) -> list[dict[str, Any]]:
     return data
 
 
+def list_run(base: str) -> list[tuple[str, dict[str, Any]]]:
+    if not os.path.isdir(base):
+        raise NotADirectoryError(base)
+
+    data: list[tuple[str, dict[str, Any]]] = []
+
+    for name in sorted(os.listdir(base)):
+        folder = os.path.join(base, name)
+        path = os.path.join(folder, "_meta.json")
+
+        if os.path.isfile(path):
+            item = read_json(path)
+
+            if not isinstance(item, dict):
+                raise TypeError(path)
+
+            data.append((folder, item))
+
+    data.sort(key=lambda item: str(item[1]["timestamp"]))
+    return data
+
+
+def recent_run(base: str, limit: int) -> list[tuple[str, dict[str, Any]]]:
+    data = list_run(base)
+
+    if limit < 1:
+        raise ValueError("limit must be positive")
+
+    return data[-limit:]
+
+
 def find_dir(base: str, meta: dict[str, Any]) -> str:
     if not os.path.isdir(base):
         raise NotADirectoryError(base)

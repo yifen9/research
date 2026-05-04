@@ -7,7 +7,8 @@ from typing import Any
 
 import yaml
 
-from research.io.text import write_text
+from research.io.json import write_json
+from research.io.text import read_text, write_text
 from research.util.audit import Audit
 from research.util.console import make_console
 from research.util.logger import Logger, make_logger
@@ -24,6 +25,12 @@ class Run:
     summary_path: Path
 
 
+def task_name(root: Path, script: Path) -> str:
+    rel = script.relative_to(root)
+    part = list(rel.with_suffix("").parts)
+    return "-".join(part)
+
+
 def env_text() -> str:
     body: list[str] = []
 
@@ -34,8 +41,20 @@ def env_text() -> str:
 
 
 def write_env(root: Path, name: str) -> Path:
-    path = root / "out" / "env" / f"{name}.txt"
+    path = root / "out" / "temp" / "env" / f"{name}.txt"
     return write_text(path, env_text())
+
+
+def save_env(temp_env: Path, run_dir: str) -> Path:
+    path = Path(run_dir) / "_env.txt"
+    text = read_text(temp_env)
+    return write_text(path, text)
+
+
+def save_meta(run_dir: str, meta: dict[str, Any]) -> Path:
+    path = Path(run_dir) / "_meta.json"
+    write_json(str(path), meta)
+    return path
 
 
 def yaml_block(data: Any) -> str:
@@ -67,6 +86,7 @@ def summary_text(
     body.append(f"- run: {run.run_dir}")
     body.append(f"- fingerprint: {run.meta['fingerprint']}")
     body.append(f"- timestamp: {run.meta['timestamp']}")
+    body.append(f"- env: {run.run_dir}/_env.txt")
     body.append(f"- audit: {run.run_dir}/_audit.json")
     body.append(f"- meta: {run.run_dir}/_meta.json")
     body.append(f"- log: {run.run_dir}/_log")
@@ -129,15 +149,21 @@ def make_run(
     src: Path,
     config: Path | None,
 ) -> Run:
-    env = write_env(root, name)
+    temp_env = write_env(root, name)
+
     meta = build_meta(
         params=params,
-        env=str(env),
+        env=str(temp_env),
         script=str(script),
         src=str(src),
         config=str(config) if config is not None else None,
     )
+
     run_dir = make_dir(str(root / "out" / "run"), meta)
+    env_path = save_env(temp_env, run_dir)
+    meta["env"] = str(env_path)
+    save_meta(run_dir, meta)
+
     audit = Audit.create(run_dir, meta)
     logger = make_logger([make_console(False), audit])
     summary_path = Path(run_dir) / "_summary.md"
