@@ -140,7 +140,7 @@ def make_run(
     run_dir = make_dir(str(root / "out" / "run"), meta)
     audit = Audit.create(run_dir, meta)
     logger = make_logger([make_console(False), audit])
-    summary_path = Path(run_dir) / "summary.md"
+    summary_path = Path(run_dir) / "_summary.md"
 
     run = Run(
         run_dir=run_dir,
