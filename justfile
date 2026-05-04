@@ -56,6 +56,7 @@ s-context-write:
     just s-context-rule-write
     just s-context-project-write
     just s-context-index-write
+    just s-context-workflow-write
 
 s-context-profile-user-write:
     uv run python script/context/profile/user/write.py . https://github.com/yifen9/yifen9.li/archive/refs/heads/main.zip out/temp/source/profile/user context/profile/user
@@ -90,6 +91,21 @@ s-context-workflow-write:
 
 s-context-index-write:
     uv run python script/context/index/write.py . context
+
+s-agent-change-new title worker:
+    uv run python script/agent/change/new.py . out/agent/change out/agent/session "{{title}}" "{{worker}}"
+
+s-agent-session-new role:
+    uv run python script/agent/session/new.py . out/agent/session "{{role}}"
+
+s-agent-change-review change reviewer status risk:
+    uv run python script/agent/change/review.py . out/agent/change out/agent/session "{{change}}" "{{reviewer}}" "{{status}}" "{{risk}}"
+
+s-agent-change-decide change decision:
+    uv run python script/agent/change/decide.py . out/agent/change "{{change}}" "{{decision}}"
+
+s-agent-change-commit change commit:
+    uv run python script/agent/change/commit.py . out/agent/change "{{change}}" "{{commit}}"
 
 q-doctor:
     quarto check
