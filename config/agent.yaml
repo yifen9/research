@@ -1,6 +1,12 @@
 agent:
   mode: human
 
+  gate:
+    approve:
+      - just fmt
+    auto:
+      - just fmt
+
   auto:
     allow_risk:
       - low

@@ -9,7 +9,8 @@ import yaml
 
 from research.io.text import write_text
 from research.io.yaml import read_yaml
-from research.util.git import git_commit, run_cmd
+from research.util.gate import run_gate
+from research.util.git import git_commit
 from research.util.jlog import jline
 from research.util.run import Run, make_run, run_err, run_ok, task_name
 
@@ -68,15 +69,20 @@ def check_state(data: dict[str, Any]) -> None:
         raise ValueError("approve requires accepted change")
 
 
-def apply_approve(root: Path, change_dir: Path, change: str, run_dir: str) -> dict[str, Any]:
+def apply_approve(
+    root: Path,
+    change_dir: Path,
+    config: Path,
+    change: str,
+    run_dir: str,
+) -> dict[str, Any]:
     if change == "latest":
         change = latest_change(change_dir, "accepted")
 
     path, data = read_result(change_dir, change)
     check_state(data)
 
-    fmt_out = run_cmd(root, ["just", "fmt"])
-    check_out = run_cmd(root, ["just", "rule-check"])
+    gate = run_gate(root, config, "approve")
     commit = git_commit(root, str(data["title"]))
 
     data["human"] = "approve"
@@ -84,10 +90,7 @@ def apply_approve(root: Path, change_dir: Path, change: str, run_dir: str) -> di
     data["commit"] = commit
     data["decision_run"] = run_dir
     data["commit_run"] = run_dir
-    data["check"] = {
-        "fmt": "passed",
-        "rule": "passed",
-    }
+    data["gate"] = {name: "passed" for name in gate}
 
     write_data(path, data)
 
@@ -95,8 +98,7 @@ def apply_approve(root: Path, change_dir: Path, change: str, run_dir: str) -> di
         "change": change,
         "status": data["status"],
         "commit": commit,
-        "fmt_output": fmt_out,
-        "check_output": check_out,
+        "gate": data["gate"],
     }
 
 
@@ -118,12 +120,13 @@ def fail(run: Run, comp: str, error: BaseException) -> None:
 
 
 def main(argv: list[str]) -> None:
-    if len(argv) != 4:
-        raise ValueError("usage: approve.py ROOT CHANGE_DIR CHANGE")
+    if len(argv) != 5:
+        raise ValueError("usage: approve.py ROOT CHANGE_DIR CONFIG CHANGE")
 
     root = Path(argv[1]).resolve()
     change_dir = Path(argv[2])
-    change = argv[3]
+    config = Path(argv[3])
+    change = argv[4]
     script = Path(__file__).resolve()
     task = task_name(root, script)
 
@@ -133,11 +136,12 @@ def main(argv: list[str]) -> None:
         params={
             "task": task,
             "change_dir": str(change_dir),
+            "config": str(config),
             "change": change,
         },
         script=script,
         src=root / "src",
-        config=None,
+        config=config,
     )
 
     try:
@@ -156,7 +160,7 @@ def main(argv: list[str]) -> None:
             )
         )
 
-        data = apply_approve(root, change_dir, change, run.run_dir)
+        data = apply_approve(root, change_dir, config, change, run.run_dir)
 
         run.logger.info(
             jline(

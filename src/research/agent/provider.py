@@ -61,4 +61,9 @@ def make_provider(data: dict[str, Any]) -> Provider:
     if name == "echo":
         return Echo(model=str(model))
 
+    if name == "gemini":
+        from research.agent.gemini import Gemini
+
+        return Gemini(model=str(model))
+
     raise NotImplementedError(str(name))

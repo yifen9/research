@@ -3,6 +3,7 @@ name = "research"
 version = "0.0.0"
 requires-python = ">=3.11"
 dependencies = [
+    "google-genai>=1.74.0",
     "pyyaml>=6.0.3",
     "rich>=15.0.0",
 ]

@@ -9,7 +9,8 @@ import yaml
 
 from research.io.text import write_text
 from research.io.yaml import read_yaml
-from research.util.git import git_commit, run_cmd
+from research.util.gate import run_gate
+from research.util.git import git_commit
 from research.util.jlog import jline
 from research.util.run import Run, make_run, run_err, run_ok, task_name
 
@@ -115,10 +116,10 @@ def apply_auto(
     path, data = read_result(change_dir, change)
     check_auto(config, data)
 
-    fmt_out = run_cmd(root, ["just", "fmt"])
-    check_out = run_cmd(root, ["just", "rule-check"])
+    gate = run_gate(root, config_path, "auto")
     commit = git_commit(root, str(data["title"]))
 
+    data["gate"] = {name: "passed" for name in gate}
     data["human"] = "auto"
     data["status"] = "committed"
     data["commit"] = commit

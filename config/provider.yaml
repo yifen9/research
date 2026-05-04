@@ -1,6 +1,5 @@
 provider:
-  name: echo
-  model: echo-local
-  env: null
+  name: gemini
+  model: gemini-3-flash-preview
   timeout: 120
   max_token: 8192

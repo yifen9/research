@@ -114,7 +114,7 @@ s-agent-change-review-latest status risk:
     change=`uv run python script/agent/query/latest.py . out/agent/change change active`; reviewer=`uv run python script/agent/query/latest.py . out/agent/session session reviewer`; uv run python script/agent/change/review.py . out/agent/change out/agent/session "$change" "$reviewer" "{{status}}" "{{risk}}"
 
 s-agent-change-approve-latest:
-    uv run python script/agent/change/approve.py . out/agent/change latest
+    uv run python script/agent/change/approve.py . out/agent/change config/agent.yaml latest
 
 s-agent-session-retire session reason:
     uv run python script/agent/session/retire.py . out/agent/session "{{session}}" "{{reason}}"
@@ -136,6 +136,18 @@ s-agent-context-write-latest:
 
 s-agent-provider-check:
     uv run python script/agent/provider/check.py . config/provider.yaml context/index.md out/temp/agent/provider/check.md
+
+s-agent-run-worker change bundle:
+    uv run python script/agent/run/worker.py . config/provider.yaml out/agent/context out/agent/change "{{bundle}}" "{{change}}"
+
+s-agent-run-reviewer change bundle:
+    uv run python script/agent/run/reviewer.py . config/provider.yaml out/agent/context out/agent/change "{{bundle}}" "{{change}}"
+
+s-agent-run-worker-latest:
+    uv run python script/agent/run/worker.py . config/provider.yaml out/agent/context out/agent/change latest latest
+
+s-agent-run-reviewer-latest:
+    uv run python script/agent/run/reviewer.py . config/provider.yaml out/agent/context out/agent/change latest latest
 
 q-doctor:
     quarto check

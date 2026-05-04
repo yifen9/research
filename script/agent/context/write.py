@@ -204,7 +204,11 @@ def write_bundle(
         logger.info(jline("agent", "context", "write", {"path": str(out)}))
 
     manifest = bundle / "_manifest.md"
-    output.append(write_text(manifest, manifest_text(bundle, prompt, context, change_file, change)))
+    output.append(
+        write_text(
+            manifest, manifest_text(bundle, prompt, context, change_file, change)
+        )
+    )
     logger.info(jline("agent", "context", "write", {"path": str(manifest)}))
 
     return output
@@ -229,7 +233,9 @@ def fail(run: Run, comp: str, error: BaseException) -> None:
 
 def main(argv: list[str]) -> None:
     if len(argv) != 7:
-        raise ValueError("usage: write.py ROOT PROMPT_DIR CONTEXT_DIR CHANGE_DIR TARGET CHANGE")
+        raise ValueError(
+            "usage: write.py ROOT PROMPT_DIR CONTEXT_DIR CHANGE_DIR TARGET CHANGE"
+        )
 
     root = Path(argv[1]).resolve()
     prompt_dir = Path(argv[2])

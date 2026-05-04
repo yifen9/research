@@ -87,6 +87,19 @@ def latest(data: list[str]) -> str:
     return data[-1]
 
 
+def dir_list(target: Path) -> list[str]:
+    if not target.is_dir():
+        raise NotADirectoryError(str(target))
+
+    data: list[str] = []
+
+    for path in sorted(target.iterdir()):
+        if path.is_dir():
+            data.append(path.name)
+
+    return data
+
+
 def main(argv: list[str]) -> None:
     if len(argv) != 5:
         raise ValueError("usage: latest.py ROOT TARGET KIND VALUE")
@@ -101,6 +114,10 @@ def main(argv: list[str]) -> None:
 
     if kind == "change":
         print(latest(change_list(target, value)))
+        return
+
+    if kind == "dir":
+        print(latest(dir_list(target)))
         return
 
     raise ValueError(f"invalid kind: {kind}")
