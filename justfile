@@ -50,6 +50,12 @@ s-rule-check:
 s-infra-docker-write:
     uv run python script/infra/docker/write.py . full
 
+s-context-write:
+    just s-context-profile-user-write
+    just s-context-run-write
+    just s-context-rule-write
+    just s-context-index-write
+
 s-context-profile-user-write:
     uv run python script/context/profile/user/write.py . https://github.com/yifen9/yifen9.li/archive/refs/heads/main.zip out/temp/source/profile/user context/profile/user
 
@@ -58,6 +64,9 @@ s-context-run-write:
 
 s-context-rule-write:
     uv run python script/context/rule/write.py . rule context/rule
+
+s-context-index-write:
+    uv run python script/context/index/write.py . context
 
 q-doctor:
     quarto check

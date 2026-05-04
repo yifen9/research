@@ -2,7 +2,9 @@
 
 | Time | Task | Status | Fingerprint | Summary |
 |---|---|---|---|---|
-| 2026-05-04T15:05:26.154841+00:00 | script-context-run-write | running | f4d8ff767a48552e | [out/run/20260504T150526154841_f4d8ff767a48552e](../../out/run/20260504T150526154841_f4d8ff767a48552e/_summary.md) |
+| 2026-05-04T15:11:44.817943+00:00 | script-context-run-write | running | f4d8ff767a48552e | [out/run/20260504T151144817943_f4d8ff767a48552e](../../out/run/20260504T151144817943_f4d8ff767a48552e/_summary.md) |
+| 2026-05-04T15:11:42.386965+00:00 | script-context-profile-user-write | success | 370b99f3869c9160 | [out/run/20260504T151142386965_370b99f3869c9160](../../out/run/20260504T151142386965_370b99f3869c9160/_summary.md) |
+| 2026-05-04T15:05:26.154841+00:00 | script-context-run-write | success | f4d8ff767a48552e | [out/run/20260504T150526154841_f4d8ff767a48552e](../../out/run/20260504T150526154841_f4d8ff767a48552e/_summary.md) |
 | 2026-05-04T15:05:15.174373+00:00 | script-context-run-write | success | f4d8ff767a48552e | [out/run/20260504T150515174373_f4d8ff767a48552e](../../out/run/20260504T150515174373_f4d8ff767a48552e/_summary.md) |
 | 2026-05-04T15:02:49.916448+00:00 | script-context-rule-write | success | 91748df85fb5d45f | [out/run/20260504T150249916448_91748df85fb5d45f](../../out/run/20260504T150249916448_91748df85fb5d45f/_summary.md) |
 | 2026-05-04T15:02:17.625983+00:00 | script-rule-check | error | 0f32732daedc401a | [out/run/20260504T150217625983_0f32732daedc401a](../../out/run/20260504T150217625983_0f32732daedc401a/_summary.md) |
