@@ -86,7 +86,9 @@ def make_index(target: Path, data: list[Path]) -> str:
 
     body.append("# Context Index\n")
     body.append("## Purpose\n")
-    body.append("This directory contains agent-readable context for the research repository.\n")
+    body.append(
+        "This directory contains agent-readable context for the research repository.\n"
+    )
 
     body.append("## Read Order\n")
     if manifest:
