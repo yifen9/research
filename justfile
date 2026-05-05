@@ -83,6 +83,15 @@ s-agent-handoff-write ROLE TEXT:
 s-agent-memory-write ROLE TEXT:
     uv run python script/agent/memory/write.py . {{ROLE}} {{TEXT}}
 
+s-project-data-add BASE:
+    uv run python script/project/data/add.py . {{BASE}}
+
+s-project-data-check:
+    uv run python script/project/data/check.py .
+
+s-project-data-scan:
+    uv run python script/project/data/scan.py .
+
 s-project-proposal-new SLUG TITLE:
     uv run python script/project/proposal/new.py . {{SLUG}} {{TITLE}}
 
