@@ -5,6 +5,9 @@
   "shutdownAction": "stopCompose",
   "updateRemoteUserUID": false,
   "postCreateCommand": "just init",
+  "mounts": [
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/root/.ssh,type=bind,consistency=cached"
+  ],
   "customizations": {
     "vscode": {
       "extensions": [

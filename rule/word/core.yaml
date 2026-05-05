@@ -4,6 +4,7 @@ word:
   - architect
   - artifact
   - backend
+  - bench
   - branch
   - build
   - bun
@@ -21,8 +22,10 @@ word:
   - design
   - doc
   - experiment
+  - external
   - file
   - full
+  - gh
   - governance
   - git
   - handoff
@@ -33,11 +36,13 @@ word:
   - lifecycle
   - manager
   - memory
+  - metric
   - name
   - omo
   - opencode
   - output
   - part
+  - pipeline
   - profile
   - project
   - proposal
@@ -52,6 +57,7 @@ word:
   - rule
   - run
   - script
+  - seed
   - session
   - site
   - src

@@ -70,3 +70,19 @@ def trace(run_dir: str, field: str, limit: int) -> list[TraceNode]:
 
 def trace_meta(run_dir: str, field: str, limit: int) -> list[dict[str, Any]]:
     return [item.meta for item in trace(run_dir, field, limit)]
+
+
+def make_lineage(
+    code: dict[str, Any],
+    data: list[dict[str, Any]],
+    env: dict[str, Any],
+    seed: int,
+    run: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "code": code,
+        "data": data,
+        "env": env,
+        "seed": seed,
+        "run": run,
+    }

@@ -31,10 +31,60 @@
 - `project/<slug>/experiment/<experiment>/result/<id>.yaml`
 - `project/<slug>/repo/<repo>/out/run/<run>/`
 
+### Schema
+
+```yaml
+kind: result
+project: <slug>
+experiment: <experiment>
+worker: <role>
+session: <session-id>
+timestamp: <iso>
+lineage:
+  code:
+    repo: <repo-slug>
+    sha: <git-sha>
+  data:
+    - source: <name>
+      version: <version>
+      sha: <sha256>
+  env:
+    image: <image-tag>
+    sha: <env-sha>
+  seed: <int>
+  run:
+    dir: <out/run/...>
+    fingerprint: <hex>
+```
+
 ### Rule
 
 - Result artifacts must reference the run audit directory.
+- Result artifacts must declare full lineage: code, data, env, seed, run.
 - Result artifacts are submitted by worker and reviewed by reviewer.
+- Reviewer rejects results with incomplete lineage.
+
+## Bench
+
+Experiment proposals may declare benchmark thresholds that worker results
+must satisfy.
+
+### Schema
+
+```yaml
+bench:
+  - metric: <name>
+    min: <number>     # actual must be >= min
+  - metric: <name>
+    max: <number>     # actual must be <= max
+```
+
+### Rule
+
+- Bench is declared in `project/<slug>/experiment/<experiment>/meta.yaml`.
+- Worker submits a metrics file alongside the result.
+- `script/project/bench/check.py` evaluates the metrics against the bench and exits non-zero on any failure.
+- Reviewer should not accept a result whose bench check failed.
 
 ## Review
 
