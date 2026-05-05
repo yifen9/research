@@ -64,6 +64,28 @@ lineage:
 - Result artifacts are submitted by worker and reviewed by reviewer.
 - Reviewer rejects results with incomplete lineage.
 
+## Bench
+
+Experiment proposals may declare benchmark thresholds that worker results
+must satisfy.
+
+### Schema
+
+```yaml
+bench:
+  - metric: <name>
+    min: <number>     # actual must be >= min
+  - metric: <name>
+    max: <number>     # actual must be <= max
+```
+
+### Rule
+
+- Bench is declared in `project/<slug>/experiment/<experiment>/meta.yaml`.
+- Worker submits a metrics file alongside the result.
+- `script/project/bench/check.py` evaluates the metrics against the bench and exits non-zero on any failure.
+- Reviewer should not accept a result whose bench check failed.
+
 ## Review
 
 - `project/<slug>/experiment/<experiment>/review/<id>.yaml`
