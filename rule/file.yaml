@@ -2,6 +2,7 @@ file:
   root:
     - rule
     - agent
+    - config
     - infra
     - project
     - script

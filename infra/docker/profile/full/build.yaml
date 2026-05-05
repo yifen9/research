@@ -10,4 +10,6 @@ part:
   - python
   - just
   - opencode
+  - bun
+  - omo
   - quarto

@@ -26,4 +26,4 @@
 
 - Reviewer does not execute worker tasks.
 - Reviewer does not change experiment goals silently.
-- Reviewer can be coordinated by architect without direct human chat.
+- Reviewer may be coordinated by architect without direct human chat.

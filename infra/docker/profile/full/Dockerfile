@@ -41,6 +41,20 @@ RUN curl -fsSL https://opencode.ai/install | bash -s -- --no-modify-path \
     && opencode --version
 
 
+ENV BUN_INSTALL=/usr/local
+
+RUN curl -fsSL https://bun.sh/install | bash \
+    && bun --version
+
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends nodejs \
+    && bun install -g oh-my-openagent \
+    && ln -sf /usr/local/bin/oh-my-openagent /usr/local/bin/omo \
+    && omo version \
+    && rm -rf /var/lib/apt/lists/*
+
+
 RUN wget -O /tmp/quarto.deb https://github.com/quarto-dev/quarto-cli/releases/download/v1.6.43/quarto-1.6.43-linux-amd64.deb \
     && apt-get update \
     && apt-get install -y --no-install-recommends /tmp/quarto.deb \

@@ -3,16 +3,15 @@
 ## Initial Context
 
 - `agent/agent.md`
-- `agent/context/index.md`
-- `agent/context/rule/_manifest.md`
-- `agent/context/project/overview.md`
-- `agent/context/profile/user/research.md`
-- `agent/context/profile/user/projects.md`
-- `agent/context/run/latest.md`
 - `agent/workflow/role/architect.md`
+- `agent/workflow/role/control.md`
 - `agent/workflow/session/architect.md`
-- `out/agent/memory/architect.md`
-- `out/agent/handoff/architect.md`
+- `agent/workflow/lifecycle.md`
+- `agent/workflow/artifact.md`
+- `agent/workflow/command.md`
+- `config/agent.yaml`
+- `out/agent/memory/architect.md` when present.
+- `out/agent/handoff/architect.md` when present.
 
 ## Rotate Trigger
 
@@ -31,4 +30,4 @@
 - Architect writes handoff before close when open work remains.
 - Architect uses rotate command for planned session transfer.
 - Architect uses retire command for mistaken sessions.
-- Architect can maintain workflow and context source.
+- Architect may maintain workflow and backend manifest source.

@@ -16,8 +16,8 @@
 
 ## Output
 
-- Run artifact.
-- Result artifact.
+- Run artifact under `out/run/`.
+- Result artifact under the project repo.
 - Patch if required by the experiment.
 - Question to higher role.
 
@@ -28,4 +28,4 @@
 - Worker does not plan project scope.
 - Worker does not change governance source.
 - Worker must claim an experiment before execution.
-- Worker can be coordinated by architect without direct human chat.
+- Worker may be coordinated by architect without direct human chat.

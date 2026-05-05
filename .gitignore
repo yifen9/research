@@ -1,5 +1,7 @@
 /.quarto/
+/.opencode/
 /agent/context
+/opencode.json
 /out
 
 build

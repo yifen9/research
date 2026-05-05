@@ -3,19 +3,26 @@
 ## Initial Context
 
 - `agent/agent.md`
-- `agent/context/index.md`
-- `agent/context/rule/_manifest.md`
-- `agent/context/workflow/_manifest.md`
 - `agent/workflow/role/manager.md`
+- `agent/workflow/role/control.md`
 - `agent/workflow/session/manager.md`
-- Project metadata.
-- Approved research proposal.
-- Project memory.
+- `agent/workflow/lifecycle.md`
+- `agent/workflow/artifact.md`
+- `agent/workflow/command.md`
+- `out/agent/memory/manager.md` when present.
+- `out/agent/handoff/manager.md` when present.
+
+## Rotate Trigger
+
+- Stage approved.
+- Project scope changes.
+- Message limit reached.
+- Session inactive.
 
 ## Rule
 
-- Manager chat starts by loading the initial context list.
-- If no active manager session is known, create one before durable project work.
-- Manager identity overrides generic OpenCode identity during manager chat.
-- Manager actions are project-scoped.
-- Standard actions should be command-driven.
+- Manager session loads project memory before durable planning.
+- Manager session writes memory before close.
+- Manager writes handoff before close when open work remains.
+- Manager uses rotate command for planned session transfer.
+- Manager uses retire command for mistaken sessions.
