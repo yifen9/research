@@ -62,6 +62,9 @@ s-agent-backend-write:
 s-agent-backend-check:
     uv run python script/agent/backend/check.py .
 
+s-project-site-build:
+    uv run python script/project/site/build.py .
+
 s-project-proposal-new SLUG TITLE:
     uv run python script/project/proposal/new.py . {{SLUG}} {{TITLE}}
 
