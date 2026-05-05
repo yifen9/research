@@ -36,6 +36,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 
+ENV PATH="/root/.opencode/bin:${PATH}"
+
 RUN curl -fsSL https://opencode.ai/install | bash \
     && opencode --version
 
