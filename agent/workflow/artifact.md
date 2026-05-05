@@ -31,10 +31,38 @@
 - `project/<slug>/experiment/<experiment>/result/<id>.yaml`
 - `project/<slug>/repo/<repo>/out/run/<run>/`
 
+### Schema
+
+```yaml
+kind: result
+project: <slug>
+experiment: <experiment>
+worker: <role>
+session: <session-id>
+timestamp: <iso>
+lineage:
+  code:
+    repo: <repo-slug>
+    sha: <git-sha>
+  data:
+    - source: <name>
+      version: <version>
+      sha: <sha256>
+  env:
+    image: <image-tag>
+    sha: <env-sha>
+  seed: <int>
+  run:
+    dir: <out/run/...>
+    fingerprint: <hex>
+```
+
 ### Rule
 
 - Result artifacts must reference the run audit directory.
+- Result artifacts must declare full lineage: code, data, env, seed, run.
 - Result artifacts are submitted by worker and reviewed by reviewer.
+- Reviewer rejects results with incomplete lineage.
 
 ## Review
 
