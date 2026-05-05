@@ -62,6 +62,12 @@ s-agent-backend-write:
 s-agent-backend-check:
     uv run python script/agent/backend/check.py .
 
+s-project-repo-new NAME KIND:
+    uv run python script/project/repo/new.py . {{NAME}} {{KIND}}
+
+s-project-repo-push DIR USER NAME:
+    uv run python script/project/repo/push.py . {{DIR}} {{USER}} {{NAME}}
+
 s-project-proposal-new SLUG TITLE:
     uv run python script/project/proposal/new.py . {{SLUG}} {{TITLE}}
 
