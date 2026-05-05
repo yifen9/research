@@ -4,6 +4,7 @@ word:
   - architect
   - artifact
   - backend
+  - bench
   - branch
   - build
   - bun
@@ -35,6 +36,7 @@ word:
   - lifecycle
   - manager
   - memory
+  - metric
   - name
   - omo
   - opencode
