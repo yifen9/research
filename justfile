@@ -4,44 +4,49 @@ default:
     just --list
 
 init:
-    just venv && \
-    just sync
+    just py-doctor
+    just o-doctor
+    just q-doctor
 
-venv:
+py-doctor:
+    just py-venv
+    just py-sync
+
+py-venv:
     test -d .venv || uv venv
 
-sync:
+py-sync:
     uv sync --all-packages
 
-sync-lock:
+py-sync-lock:
     uv sync --locked --all-packages
 
-up:
+py-up:
     uv lock --upgrade
 
-add PKG:
+py-add PKG:
     uv add {{PKG}}
 
-add-dev PKG:
+py-add-dev PKG:
     uv add --dev {{PKG}}
 
-rm PKG:
+py-rm PKG:
     uv remove {{PKG}}
 
-rm-dev PKG:
+py-rm-dev PKG:
     uv remove --dev {{PKG}}
 
-fmt:
-    just sync && \
+py-fmt:
+    just py-sync
     uv run ruff format .
 
-fmt-check:
+py-fmt-check:
     uv run ruff format --check .
 
-lint:
+py-lint:
     uv run ruff check . --fix
 
-lint-check:
+py-lint-check:
     uv run ruff check .
 
 s-rule-check:
@@ -75,12 +80,6 @@ s-context-index-write:
 
 o-doctor:
     opencode --version
-
-o-tui:
-    opencode --pure
-
-o-serve:
-    opencode serve --pure --hostname 0.0.0.0 --port 4096
 
 q-doctor:
     quarto check

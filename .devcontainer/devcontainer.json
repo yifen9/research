@@ -3,7 +3,8 @@
   "service": "research-dev",
   "workspaceFolder": "/workspace",
   "shutdownAction": "stopCompose",
-  "postCreateCommand": "just init",
+  "updateRemoteUserUID": false,
+  "postCreateCommand": "opencode --version && just init",
   "customizations": {
     "vscode": {
       "extensions": [
