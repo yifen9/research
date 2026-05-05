@@ -1,25 +1,42 @@
-# Research Repository Instructions
+# Research Agent Guide
 
-This repository is the parent infrastructure for research work. OpenCode is the active agent runtime for new interactive work.
+## Identity
 
-## Current Phase
+This repository is the control repository for personal research infrastructure.
 
-- Phase 1 installs and configures OpenCode in the devcontainer.
-- Phase 2 will implement the architect, task, worker, reviewer, sandbox, and project export workflow.
+## Foundation
 
-## Active Context
+- GitHub stores source, automation, packages, and published outputs.
+- Devcontainer provides the standard research environment.
+- OpenCode is the agent interface.
+- Quarto publishes the research overview site.
 
-- Use `workflow/`, `rule/`, `context/`, and `script/context/` as governance and context sources.
-- Use `src/research/util/` and `src/research/io/` as reusable infrastructure utilities.
-- Treat `out/` as generated runtime output, not as canonical instructions.
+## Source
 
-## Inactive Legacy Path
+- `rule/` is the governance source of truth.
+- `context/` is generated or maintained agent-readable context.
+- `script/` contains executable task entrypoints.
+- `src/` contains reusable internal Python code.
+- `infra/` contains generated and maintained infrastructure.
+- `template/` contains creation templates.
+- `out/` contains runtime output and audit artifacts.
 
-- Do not use custom Gemini/API provider scripts. That execution path was removed in favor of OpenCode.
-- Do not recreate provider-specific credentials or committed API-key configuration.
+## Rule
 
-## Safety
+- Read `context/index.md` before non-trivial work.
+- Read `context/rule/_manifest.md` before changing governed files.
+- Do not edit generated context files directly.
+- Regenerate context through `script/context/*` writers.
+- Use singular directory names.
+- Keep the rule word list minimal.
+- Do not add code comments.
+- Rule and workflow changes require architect-level approval.
+- Lower-level agents propose governance changes instead of applying them directly.
 
-- Do not commit without an explicit user request.
-- Do not change rule, workflow, architecture, or research claims through automatic approval.
-- Keep project-specific research work under a future `project/<slug>` boundary.
+## Workflow
+
+- Architect owns cross-project research proposals and governance changes.
+- Manager owns one project and translates approved research proposals into stages.
+- Reviewer owns experiment proposal review and result acceptance.
+- Worker executes approved experiments and submits auditable results.
+- Approval must be represented as an explicit artifact or command, not only as chat.

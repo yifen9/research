@@ -49,7 +49,9 @@ def run_item(folder: str, meta: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def load_run(run_dir: Path, limit: int, logger: Logger) -> list[dict[str, Any]]:
+def load_run(
+    run_dir: Path, limit: int, skip: str, logger: Logger
+) -> list[dict[str, Any]]:
     data = recent_run(str(run_dir), limit)
     output: list[dict[str, Any]] = []
     progress = make_progress(logger, "run", len(data))
@@ -57,6 +59,10 @@ def load_run(run_dir: Path, limit: int, logger: Logger) -> list[dict[str, Any]]:
     progress.start()
 
     for folder, meta in data:
+        if str(Path(folder).resolve()) == skip:
+            progress.step(1)
+            continue
+
         item = run_item(folder, meta)
         output.append(item)
         logger.info(
@@ -157,9 +163,9 @@ def write_context(
 
 
 def write_run(
-    root: Path, run_dir: Path, target: Path, limit: int, logger: Logger
+    root: Path, run_dir: Path, target: Path, limit: int, skip: str, logger: Logger
 ) -> list[Path]:
-    data = load_run(run_dir, limit, logger)
+    data = load_run(run_dir, limit, skip, logger)
     output = write_context(target, run_dir, limit, data)
 
     for path in output:
@@ -227,7 +233,7 @@ def main(argv: list[str]) -> None:
             )
         )
 
-        output = write_run(root, run_dir, target, limit, run.logger)
+        output = write_run(root, run_dir, target, limit, run.run_dir, run.logger)
 
         run.logger.info(
             jline(

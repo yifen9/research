@@ -84,11 +84,30 @@ def good_word(name: str, pool: set[str]) -> bool:
     if len(part) > 2:
         return False
 
+    if len(part) == 2 and part[1].isdigit():
+        return part[0] in pool
+
     for item in part:
         if item not in pool:
             return False
 
     return True
+
+
+def py_word(name: str, pool: set[str]) -> bool:
+    if name in {"self", "cls"}:
+        return True
+
+    if name.startswith("__") and name.endswith("__"):
+        return True
+
+    if name.isupper():
+        return True
+
+    if name[:1].isupper():
+        return True
+
+    return good_word(name, pool)
 
 
 def good_kebab(name: str) -> bool:
@@ -109,6 +128,7 @@ def skip_path(path: Path) -> bool:
         "__pycache__",
         "_extensions",
         "build",
+        "context",
         "out",
     }
 
@@ -164,23 +184,23 @@ def check_arg(
     bad: list[tuple[Path, int, str, str]] = []
 
     for item in arg.posonlyargs:
-        if not good_word(item.arg, pool):
+        if not py_word(item.arg, pool):
             bad.append((path, line, item.arg, "arg"))
 
     for item in arg.args:
-        if not good_word(item.arg, pool):
+        if not py_word(item.arg, pool):
             bad.append((path, line, item.arg, "arg"))
 
     for item in arg.kwonlyargs:
-        if not good_word(item.arg, pool):
+        if not py_word(item.arg, pool):
             bad.append((path, line, item.arg, "arg"))
 
     if arg.vararg is not None:
-        if not good_word(arg.vararg.arg, pool):
+        if not py_word(arg.vararg.arg, pool):
             bad.append((path, line, arg.vararg.arg, "arg"))
 
     if arg.kwarg is not None:
-        if not good_word(arg.kwarg.arg, pool):
+        if not py_word(arg.kwarg.arg, pool):
             bad.append((path, line, arg.kwarg.arg, "arg"))
 
     return bad
@@ -236,7 +256,7 @@ def check_target(
     bad: list[tuple[Path, int, str, str]] = []
 
     for name in target_name(node):
-        if not good_word(name, pool):
+        if not py_word(name, pool):
             bad.append((path, line, name, "name"))
 
     return bad
@@ -272,7 +292,7 @@ def check_func(
     bad.extend(check_default(node.args, path, node.lineno, node.name))
     bad.extend(check_arg(node.args, pool, path, node.lineno))
 
-    if not good_word(node.name, pool):
+    if not py_word(node.name, pool):
         bad.append((path, node.lineno, node.name, "name"))
 
     if nest_depth(node, 0) > max_nest:
@@ -325,11 +345,11 @@ def check_dir(
     rule: dict[str, Any],
 ) -> list[tuple[Path, int, str, str]]:
     bad: list[tuple[Path, int, str, str]] = []
-    deny = set(rule["file"]["deny"])
+    deny_set = set(rule["file"]["deny"])
     allow = set(rule["name"]["allow"])
 
     for part in path.parts:
-        if part in deny:
+        if part in deny_set:
             bad.append((path, 0, part, "deny"))
 
         if part in allow:
@@ -458,15 +478,15 @@ def bad_item(item: tuple[Path, int, str, str]) -> dict[str, Any]:
 
 
 def count_key(data: list[dict[str, Any]], key: str) -> dict[str, int]:
-    out: dict[str, int] = {}
+    output: dict[str, int] = {}
 
     for item in data:
         value = str(item[key])
-        if value not in out:
-            out[value] = 0
-        out[value] += 1
+        if value not in output:
+            output[value] = 0
+        output[value] += 1
 
-    return dict(sorted(out.items(), key=lambda item: item[1], reverse=True))
+    return dict(sorted(output.items(), key=lambda item: item[1], reverse=True))
 
 
 def bad_data(bad: list[tuple[Path, int, str, str]], task: str) -> dict[str, Any]:

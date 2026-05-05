@@ -4,116 +4,183 @@ word:
   - append
   - arg
   - argv
+  - archive
   - ast
+  - atom
   - audit
   - bad
   - base
   - best
+  - bind
+  - block
   - body
   - buffer
   - byte
+  - call
   - check
   - child
   - code
   - comp
+  - compression
   - config
   - conf
   - console
   - context
   - count
+  - create
   - csv
   - current
   - data
   - date
   - default
+  - deny
   - depth
   - dir
   - doc
   - docker
   - emit
   - encoding
+  - elapsed
   - ensure
   - env
+  - end
+  - err
   - error
   - eta
   - event
   - except
+  - fail
   - extra
   - field
   - file
   - finger
+  - find
+  - finish
+  - flush
   - folder
+  - format
+  - func
+  - good
+  - handle
   - header
+  - has
+  - hash
   - hasher
+  - hex
+  - id
   - index
+  - info
+  - indent
   - io
+  - is
   - item
+  - jdump
+  - jline
+  - jlog
   - json
   - jsonl
   - key
+  - kebab
   - kind
   - label
+  - latest
   - level
+  - lineage
   - limit
   - line
   - list
   - load
+  - log
   - logger
   - main
   - make
+  - manifest
   - map
   - max
   - message
   - meta
+  - mirror
+  - msg
   - name
   - nest
   - node
+  - now
+  - ok
+  - other
   - output
   - page
   - parquet
   - param
+  - params
+  - parse
   - part
   - path
   - payload
   - pct
+  - phase
   - pool
   - pq
   - prev
   - print
+  - prog
   - profile
   - progress
+  - rate
   - reader
+  - recent
   - record
   - rel
   - remain
+  - run
   - root
   - rotate
   - row
   - rows
   - rule
   - scan
+  - seg
   - segment
   - seen
+  - set
   - sha
+  - save
   - sink
   - size
   - skip
+  - snake
+  - source
+  - split
   - start
+  - started
   - status
   - stem
+  - step
   - style
+  - summary
   - table
+  - tail
   - target
   - temp
   - text
   - time
+  - timestamp
   - title
+  - top
   - total
+  - touch
   - trace
   - transient
   - tree
+  - try
+  - ts
+  - unzip
+  - url
+  - utc
   - value
+  - versioner
+  - warn
   - word
   - write
   - writer
   - yaml
+  - zip

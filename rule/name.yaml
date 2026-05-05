@@ -18,8 +18,13 @@ name:
     - .git
     - .github
     - .devcontainer
+    - AGENTS.md
     - README.md
     - LICENSE
     - Dockerfile
+    - _manifest.md
     - justfile
+    - pyproject.toml
+    - opencode.json
+    - devcontainer.json
     - _quarto.yaml

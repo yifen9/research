@@ -4,7 +4,7 @@
   "workspaceFolder": "/workspace",
   "shutdownAction": "stopCompose",
   "updateRemoteUserUID": false,
-  "postCreateCommand": "opencode --version && just init",
+  "postCreateCommand": "just init",
   "customizations": {
     "vscode": {
       "extensions": [

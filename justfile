@@ -60,7 +60,6 @@ s-context-write:
     just s-context-run-write
     just s-context-rule-write
     just s-context-project-write
-    just s-context-agent-write
     just s-context-index-write
 
 s-context-profile-user-write:
@@ -80,6 +79,9 @@ s-context-index-write:
 
 o-doctor:
     opencode --version
+
+o-web:
+    opencode web
 
 q-doctor:
     quarto check

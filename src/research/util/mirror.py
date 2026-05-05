@@ -52,9 +52,9 @@ def copy_md(source: Path, target: Path, logger: Logger) -> list[Path]:
 
     for path in data:
         rel = path.relative_to(source)
-        out = target / rel
+        target_path = target / rel
         text = read_text(path)
-        output.append(write_text(out, text))
+        output.append(write_text(target_path, text))
         logger.info(
             jline(
                 "mirror",
@@ -62,7 +62,7 @@ def copy_md(source: Path, target: Path, logger: Logger) -> list[Path]:
                 "copy",
                 {
                     "source": str(path),
-                    "target": str(out),
+                    "target": str(target_path),
                 },
             )
         )

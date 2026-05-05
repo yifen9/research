@@ -9,6 +9,7 @@ word:
   - core
   - data
   - dev
+  - design
   - doc
   - file
   - full
@@ -17,15 +18,22 @@ word:
   - input
   - lang
   - name
+  - opencode
   - output
   - part
   - profile
   - project
+  - py
+  - research
   - repo
   - rule
+  - run
   - script
   - site
+  - src
   - task
   - template
   - tool
+  - user
+  - util
   - word
