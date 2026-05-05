@@ -1,0 +1,25 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["AGENTS.md"],
+  "share": "manual",
+  "autoupdate": "notify",
+  "permission": {
+    "edit": "ask",
+    "bash": {
+      "*": "ask",
+      "rm -rf *": "deny",
+      "git reset --hard*": "deny",
+      "git push --force*": "deny"
+    }
+  },
+  "watcher": {
+    "ignore": [
+      ".git/**",
+      ".venv/**",
+      ".ruff_cache/**",
+      "build/**",
+      "out/**",
+      "__pycache__/**"
+    ]
+  }
+}

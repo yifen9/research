@@ -2,179 +2,71 @@
 
 ## Purpose
 
-Human mode is the default agent workflow.
+Human mode is the active Phase 1 workflow.
 
-In this mode, the worker performs the task, the reviewer inspects the result, and the human explicitly approves before commit.
+In this mode the human works with OpenCode inside the devcontainer. Repository scripts keep rules, context, run records, and review artifacts available, but custom Gemini/API worker and reviewer execution is no longer active.
 
 ## Start
 
-Create one worker session:
+Enter the devcontainer and verify OpenCode:
 
 ```bash
-just s-agent-session-new worker
+just o-doctor
 ```
 
-Create one reviewer session:
+Start the terminal UI:
 
 ```bash
-just s-agent-session-new reviewer
+just o-tui
 ```
 
-A session can be reused across multiple changes until it is retired.
-
-## Create Change
-
-Create a change with the latest active worker:
+Or start a headless server for API or remote clients:
 
 ```bash
-just s-agent-change-new-latest "Fix one small issue"
+just o-serve
 ```
 
-This creates:
+## Context
 
-```text
-out/agent/change/<change-id>/
-  task.md
-  proposal.md
-  review.md
-  result.yaml
-```
+OpenCode should use `AGENTS.md` as the first project instruction file.
 
-Edit `task.md` before assigning the task if the objective is still incomplete.
+Useful repository context remains in:
 
-## Build Context Bundle
+- `context/index.md`
+- `context/project/_manifest.md`
+- `context/rule/_manifest.md`
+- `context/workflow/`
+- `workflow/`
 
-Generate a bundle for worker and reviewer:
+Generated runtime artifacts under `out/` are evidence, not instructions.
 
-```bash
-just s-agent-context-write-latest
-```
+## Phase 1 Boundary
 
-This creates:
+Phase 1 provides OpenCode readiness and removes the old provider-backed runner path.
 
-```text
-out/agent/context/<bundle-id>/
-  _manifest.md
-  worker.md
-  reviewer.md
-```
+Phase 1 does not implement the final architect, task DAG, sandbox, reviewer, project export, or downstream sync workflow.
 
-## Run Worker
+## Preserved Control Plane
 
-Run the worker agent on the latest bundle and latest change:
+The following artifact systems remain for Phase 2:
 
-```bash
-just s-agent-run-worker-latest
-```
+- session records
+- change records
+- review records
+- patch checks
+- approval gates
+- run audit summaries
 
-The worker output is written to:
+## Forbidden Legacy Path
 
-```text
-out/agent/change/<change-id>/proposal.md
-out/agent/change/<change-id>/worker.md
-```
+Do not use or recreate:
 
-The worker should not approve or commit its own change.
-
-## Run Reviewer
-
-Regenerate the context bundle after the worker finishes:
-
-```bash
-just s-agent-context-write-latest
-```
-
-Run the reviewer:
-
-```bash
-just s-agent-run-reviewer-latest
-```
-
-The reviewer output is written to:
-
-```text
-out/agent/change/<change-id>/review.md
-out/agent/change/<change-id>/reviewer.md
-```
-
-## Record Review
-
-If the reviewer accepts with low risk:
-
-```bash
-just s-agent-change-review-latest accept low
-```
-
-If the reviewer rejects:
-
-```bash
-just s-agent-change-review-latest reject medium
-```
-
-This updates:
-
-```text
-out/agent/change/<change-id>/result.yaml
-out/agent/session/<worker-id>/state.yaml
-```
-
-## Approve and Commit
-
-If the change is accepted and the human approves:
-
-```bash
-just s-agent-change-approve-latest
-```
-
-This runs the configured human approval gates from:
-
-```text
-config/agent.yaml
-```
-
-Then it commits and writes the commit hash to:
-
-```text
-out/agent/change/<change-id>/result.yaml
-```
-
-## Retire Session
-
-Retire the latest worker:
-
-```bash
-just s-agent-session-retire-latest worker "context drift"
-```
-
-Retire the latest reviewer:
-
-```bash
-just s-agent-session-retire-latest reviewer "reviewer replacement"
-```
-
-A retired session should leave memory in:
-
-```text
-out/agent/session/<session-id>/memory.md
-```
-
-## Smoke Test
-
-Run:
-
-```bash
-just s-agent-smoke-human
-```
-
-This checks whether the current human-mode agent workflow has the required sessions, change, bundle, config, and result state.
+- committed provider API keys
+- `config/provider.yaml`
+- custom Gemini provider code
+- provider-backed worker or reviewer scripts
+- provider-backed automatic task drafting
 
 ## Rule
 
-Human mode must be used for:
-
-- architecture changes
-- rule changes
-- workflow changes
-- medium-risk changes
-- high-risk changes
-- ambiguous reviewer output
+Human approval remains required for architecture, workflow, rule, research claim, publication, and export changes.

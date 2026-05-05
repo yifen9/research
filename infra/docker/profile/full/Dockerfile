@@ -36,6 +36,10 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 
+RUN curl -fsSL https://opencode.ai/install | bash \
+    && opencode --version
+
+
 RUN wget -O /tmp/quarto.deb https://github.com/quarto-dev/quarto-cli/releases/download/v1.6.43/quarto-1.6.43-linux-amd64.deb \
     && apt-get update \
     && apt-get install -y --no-install-recommends /tmp/quarto.deb \

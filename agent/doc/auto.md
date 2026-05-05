@@ -2,134 +2,39 @@
 
 ## Purpose
 
-Auto mode allows low-risk accepted changes to be committed without manual approval.
+Auto mode is deferred during Phase 1.
 
-Auto mode must be explicitly enabled in:
+The repository is moving from the custom Gemini/API runner to OpenCode. Until the Phase 2 architecture is implemented, automatic commits must not drive research, workflow, rule, architecture, publication, or export changes.
 
-```text
-config/agent.yaml
-```
+## Current Status
 
-## Enable
+OpenCode is the active agent runtime.
 
-Set:
+The old provider-backed auto path has been removed from the active command surface.
 
-```yaml
-agent:
-  mode: auto
-```
+## Allowed Automation
 
-## Gate
+Automation may still run local checks such as:
 
-Auto mode uses the configured auto gate:
+- `just fmt-check`
+- `just lint-check`
+- `just s-rule-check`
+- `just q-render`
 
-```yaml
-agent:
-  gate:
-    auto:
-      - just fmt
-```
+Automation may prepare evidence, but it must not commit without explicit human approval.
 
-The gate can later include stricter commands:
+## Future Phase
 
-```yaml
-agent:
-  gate:
-    auto:
-      - just fmt
-      - just rule-check
-```
+Phase 2 may reintroduce automatic progression only after these exist:
 
-## Required Conditions
-
-Auto mode requires:
-
-- change status is accepted
-- risk is allowed by config
-- configured auto gates pass
-- git has changes to commit
-- task is not forbidden by config
-
-## Forbidden by Default
-
-Auto mode should reject:
-
-- rule changes
-- workflow changes
-- architecture changes
-- medium-risk changes
-- high-risk changes
-- failed gates
-
-## Flow
-
-Create sessions:
-
-```bash
-just s-agent-session-new worker
-just s-agent-session-new reviewer
-```
-
-Create change:
-
-```bash
-just s-agent-change-new-latest "Fix one small issue"
-```
-
-Generate context:
-
-```bash
-just s-agent-context-write-latest
-```
-
-Run worker:
-
-```bash
-just s-agent-run-worker-latest
-```
-
-Regenerate context:
-
-```bash
-just s-agent-context-write-latest
-```
-
-Run reviewer:
-
-```bash
-just s-agent-run-reviewer-latest
-```
-
-Record accepted review:
-
-```bash
-just s-agent-change-review-latest accept low
-```
-
-Commit automatically:
-
-```bash
-just s-agent-change-auto-latest
-```
-
-## Result
-
-A successful auto run updates:
-
-```text
-out/agent/change/<change-id>/result.yaml
-```
-
-with:
-
-```yaml
-human: auto
-status: committed
-commit: <hash>
-```
+- structured task ledger
+- sandboxed worker attempts
+- reviewer decision artifact
+- architect decision artifact
+- explicit risk policy
+- passing gate records
+- commit hash recording
 
 ## Rule
 
-Auto mode is only for low-risk mechanical changes.
-
-If the change affects architecture, rule, workflow, research claim, or publication content, use human mode.
+When in doubt, use human mode.

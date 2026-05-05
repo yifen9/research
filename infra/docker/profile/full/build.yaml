@@ -9,4 +9,5 @@ part:
   - core
   - python
   - just
+  - opencode
   - quarto

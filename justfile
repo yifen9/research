@@ -126,36 +126,6 @@ s-agent-session-retire session reason:
 s-agent-session-retire-latest role reason:
     session=`uv run python script/agent/query/latest.py . out/agent/session session "{{role}}"`; uv run python script/agent/session/retire.py . out/agent/session "$session" "{{reason}}"
 
-s-agent-change-auto-latest:
-    uv run python script/agent/change/auto.py . out/agent/change config/agent.yaml latest
-
-s-agent-change-auto change:
-    uv run python script/agent/change/auto.py . out/agent/change config/agent.yaml "{{change}}"
-
-s-agent-context-write change:
-    uv run python script/agent/context/write.py . agent/prompt context out/agent/change out/agent/context "{{change}}"
-
-s-agent-context-write-latest:
-    change=`uv run python script/agent/query/latest.py . out/agent/change change active`; uv run python script/agent/context/write.py . agent/prompt context out/agent/change out/agent/context "$change"
-
-s-agent-provider-check:
-    uv run python script/agent/provider/check.py . config/provider.yaml context/index.md out/temp/agent/provider/check.md
-
-s-agent-run-worker change bundle:
-    uv run python script/agent/run/worker.py . config/provider.yaml out/agent/context out/agent/change "{{bundle}}" "{{change}}"
-
-s-agent-run-reviewer change bundle:
-    uv run python script/agent/run/reviewer.py . config/provider.yaml out/agent/context out/agent/change "{{bundle}}" "{{change}}"
-
-s-agent-run-worker-latest:
-    uv run python script/agent/run/worker.py . config/provider.yaml out/agent/context out/agent/change latest latest
-
-s-agent-run-reviewer-latest:
-    uv run python script/agent/run/reviewer.py . config/provider.yaml out/agent/context out/agent/change latest latest
-
-s-agent-smoke-human:
-    uv run python script/agent/smoke/human.py . config/agent.yaml out/agent/session out/agent/change out/agent/context
-
 s-agent-patch-check change:
     uv run python script/agent/patch/check.py . out/agent/change "{{change}}"
 
@@ -171,8 +141,14 @@ s-agent-patch-apply-latest:
 s-agent-task-check-latest:
     change=`uv run python script/agent/query/latest.py . out/agent/change change active`; uv run python script/agent/change/check.py . out/agent/change "$change"
 
-s-agent-task-latest:
-    change=`uv run python script/agent/query/latest.py . out/agent/change change active`; uv run python script/agent/change/task.py . config/agent.yaml config/provider.yaml context out/agent/change "$change"
+o-doctor:
+    opencode --version
+
+o-tui:
+    opencode --pure
+
+o-serve:
+    opencode serve --pure --hostname 0.0.0.0 --port 4096
 
 q-doctor:
     quarto check

@@ -1,5 +1,0 @@
-provider:
-  name: gemini
-  model: gemini-pro-latest
-  timeout: 120
-  max_token: 8192

@@ -3,7 +3,6 @@ from __future__ import annotations
 from pathlib import Path
 import shutil
 import sys
-from typing import Any
 from urllib.request import urlretrieve
 import zipfile
 
