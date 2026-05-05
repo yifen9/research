@@ -5,8 +5,4 @@ services:
     working_dir: /workspace
     volumes:
       - "..:/workspace"
-    command: >
-      bash -lc "
-        just init &&
-        exec sleep infinity
-      "
+    command: sleep infinity

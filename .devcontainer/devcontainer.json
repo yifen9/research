@@ -3,13 +3,13 @@
   "service": "research-dev",
   "workspaceFolder": "/workspace",
   "shutdownAction": "stopCompose",
+  "postCreateCommand": "just init",
   "customizations": {
     "vscode": {
       "extensions": [
         "jeff-hykin.better-dockerfile-syntax",
         "tomoki1207.pdf",
         "james-yu.latex-workshop",
-        "redhat.vscode-yaml",
         "tamasfe.even-better-toml",
         "nefrob.vscode-just-syntax",
         "ms-python.python",
