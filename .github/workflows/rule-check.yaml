@@ -1,0 +1,24 @@
+name: rule-check
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  rule-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "0.6.17"
+
+      - name: sync
+        run: uv sync --all-packages
+
+      - name: rule check
+        run: uv run python script/rule/check.py .

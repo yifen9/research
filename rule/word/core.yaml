@@ -21,6 +21,7 @@ word:
   - design
   - doc
   - experiment
+  - external
   - file
   - full
   - gh
@@ -39,6 +40,7 @@ word:
   - opencode
   - output
   - part
+  - pipeline
   - profile
   - project
   - proposal

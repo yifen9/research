@@ -22,6 +22,8 @@ name:
     - LICENSE
     - Dockerfile
     - _manifest.md
+    - _meta.json
+    - SOURCE.yaml
     - justfile
     - pyproject.toml
     - opencode.json
