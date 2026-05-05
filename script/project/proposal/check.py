@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import re
+import subprocess
 import sys
 from typing import Any
 
@@ -40,6 +41,21 @@ def has_text(path: Path) -> bool:
     return bool(read_text(path).strip())
 
 
+def git_status(root: Path, slug: str) -> str:
+    result = subprocess.run(
+        ["git", "status", "--porcelain", "--", f"project/{slug}"],
+        cwd=root,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    if result.returncode != 0:
+        raise RuntimeError((result.stdout + result.stderr).strip())
+
+    return result.stdout.strip()
+
+
 def check_proposal(root: Path, slug: str) -> list[dict[str, Any]]:
     slug_ok(slug)
     folder = project_path(root, slug)
@@ -68,6 +84,9 @@ def check_proposal(root: Path, slug: str) -> list[dict[str, Any]]:
 
     if state == "active" and not has_text(proposal / "decision.yaml"):
         bad.append({"path": str(proposal / "decision.yaml"), "kind": "decision"})
+
+    if state == "active" and git_status(root, slug):
+        bad.append({"path": str(folder), "kind": "git"})
 
     return bad
 

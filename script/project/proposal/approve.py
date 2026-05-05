@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from pathlib import Path
 import re
+import subprocess
 import sys
 from typing import Any
 
@@ -52,7 +53,10 @@ def has_text(path: Path) -> bool:
     return bool(read_text(path).strip())
 
 
-def decision_data(slug: str, role: str, text: str, run: Run) -> dict[str, Any]:
+def decision_data(
+    slug: str, role: str, text: str, branch: str, run: Run
+) -> dict[str, Any]:
+    message = commit_message(slug, run)
     return {
         "id": f"{slug}-proposal-approve",
         "target": f"project/{slug}/proposal",
@@ -60,14 +64,122 @@ def decision_data(slug: str, role: str, text: str, run: Run) -> dict[str, Any]:
         "role": role,
         "decision": "approved",
         "reason": text,
+        "branch": branch,
+        "commit": {
+            "required": True,
+            "message": message[0],
+            "body": message[1],
+            "branch": branch,
+        },
         "time": now_text(),
         "run": run.run_dir,
     }
 
 
+def commit_message(slug: str, run: Run) -> list[str]:
+    return [
+        f"approve project proposal for {slug}",
+        "\n".join(
+            [
+                "Records durable approval for the project proposal so the project can move from proposal to active state.",
+                "",
+                f"Decision: project/{slug}/proposal/decision.yaml",
+                f"Run: {run.run_dir}",
+            ]
+        ),
+    ]
+
+
+def branch_name(slug: str) -> str:
+    return f"project/{slug}/approve"
+
+
+def git_call(root: Path, arg: list[str]) -> str:
+    result = subprocess.run(
+        ["git", *arg],
+        cwd=root,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    output = (result.stdout + result.stderr).strip()
+
+    if result.returncode != 0:
+        raise RuntimeError(output)
+
+    return output
+
+
+def git_other(root: Path, target: str) -> list[str]:
+    text = git_call(root, ["status", "--porcelain"])
+    data: list[str] = []
+
+    for line in text.splitlines():
+        path = line[3:]
+
+        if not path.startswith(target):
+            data.append(line)
+
+    return data
+
+
+def git_has(root: Path, name: str) -> bool:
+    result = subprocess.run(
+        ["git", "show-ref", "--verify", "--quiet", f"refs/heads/{name}"],
+        cwd=root,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    if result.returncode not in {0, 1}:
+        raise RuntimeError((result.stdout + result.stderr).strip())
+
+    return result.returncode == 0
+
+
+def git_branch(root: Path) -> str:
+    return git_call(root, ["branch", "--show-current"])
+
+
+def set_branch(root: Path, name: str) -> str:
+    current = git_branch(root)
+
+    if current == name:
+        return current
+
+    if git_has(root, name):
+        git_call(root, ["switch", name])
+    else:
+        git_call(root, ["switch", "-c", name])
+
+    return git_branch(root)
+
+
+def git_ok(root: Path, slug: str) -> str:
+    target = f"project/{slug}"
+    other = git_other(root, target)
+
+    if other:
+        raise RuntimeError("unrelated dirty worktree")
+
+    return set_branch(root, branch_name(slug))
+
+
+def git_commit(root: Path, slug: str, branch: str, run: Run) -> dict[str, str]:
+    target = f"project/{slug}"
+    message = commit_message(slug, run)
+    git_call(root, ["add", "--", target])
+    git_call(root, ["commit", "-m", message[0], "-m", message[1], "--", target])
+    return {
+        "sha": git_call(root, ["rev-parse", "HEAD"]),
+        "branch": branch,
+    }
+
+
 def approve_proposal(
     root: Path, slug: str, role: str, text: str, run: Run
-) -> list[Path]:
+) -> dict[str, Any]:
     slug_ok(slug)
     text = ensure_text(text)
     folder = project_path(root, slug)
@@ -85,7 +197,8 @@ def approve_proposal(
     if data.get("project") != slug:
         raise ValueError("proposal slug mismatch")
 
-    decision = decision_data(slug, role, text, run)
+    branch = git_ok(root, slug)
+    decision = decision_data(slug, role, text, branch, run)
     project["state"] = "active"
     project["approved"] = decision["time"]
     data["state"] = "approved"
@@ -95,7 +208,11 @@ def approve_proposal(
     output.append(Path(write_yaml(str(proposal / "decision.yaml"), decision)))
     output.append(Path(write_yaml(str(folder / "meta.yaml"), project)))
     output.append(Path(write_yaml(str(proposal / "meta.yaml"), data)))
-    return output
+    commit = git_commit(root, slug, branch, run)
+    return {
+        "commit": commit,
+        "output": [str(path) for path in output],
+    }
 
 
 def fail(run: Run, comp: str, error: BaseException) -> None:
@@ -136,14 +253,14 @@ def main(argv: list[str]) -> None:
     )
 
     try:
-        output = approve_proposal(root, slug, role, text, run)
+        data = approve_proposal(root, slug, role, text, run)
         run_ok(
             run,
             {
                 "task": task,
                 "slug": slug,
                 "role": role,
-                "output": [str(path) for path in output],
+                **data,
             },
         )
 

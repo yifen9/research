@@ -9,6 +9,7 @@
 ## Input
 
 - Approved experiment proposal.
+- Active experiment claim.
 - Repo command contract.
 - Rule context.
 
@@ -24,3 +25,4 @@
 - Worker does not change proposal goals.
 - Worker does not plan project scope.
 - Worker does not change governance source.
+- Worker must claim an experiment before execution.

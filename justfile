@@ -108,6 +108,15 @@ s-project-proposal-check SLUG:
 s-project-proposal-approve SLUG ROLE TEXT:
     uv run python script/project/proposal/approve.py . {{SLUG}} {{ROLE}} {{TEXT}}
 
+s-project-experiment-claim SLUG EXPERIMENT ROLE SESSION:
+    uv run python script/project/experiment/claim.py . {{SLUG}} {{EXPERIMENT}} {{ROLE}} {{SESSION}}
+
+s-project-experiment-release SLUG EXPERIMENT ROLE REASON:
+    uv run python script/project/experiment/release.py . {{SLUG}} {{EXPERIMENT}} {{ROLE}} {{REASON}}
+
+s-project-experiment-check:
+    uv run python script/project/experiment/check.py .
+
 o-doctor:
     opencode --version
 

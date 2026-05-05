@@ -14,8 +14,11 @@ Decision artifacts record explicit approval, rejection, or amendment.
 - reason
 - time
 - run
+- branch
+- commit
 
 ## Rule
 
 - Approval must be represented as a decision artifact.
 - Chat alone is not a durable approval.
+- Approved decisions require a git commit.

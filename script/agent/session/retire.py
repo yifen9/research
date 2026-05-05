@@ -27,6 +27,36 @@ def session_path(root: Path, role: str, name: str) -> Path:
     return root / "out" / "agent" / "session" / role / name
 
 
+def current_session(root: Path, role: str) -> str:
+    base = root / "out" / "agent" / "session" / role
+
+    if not base.is_dir():
+        raise FileNotFoundError(str(base))
+
+    data: list[str] = []
+
+    for folder in sorted(base.iterdir()):
+        if not folder.is_dir():
+            continue
+
+        item = read_map(folder / "session.yaml")
+
+        if item.get("state") == "active":
+            data.append(folder.name)
+
+    if not data:
+        raise FileNotFoundError("active session")
+
+    return data[-1]
+
+
+def session_name(root: Path, role: str, name: str) -> str:
+    if name == "current":
+        return current_session(root, role)
+
+    return name
+
+
 def read_map(path: Path) -> dict[str, Any]:
     data = read_yaml(str(path))
 
@@ -65,6 +95,7 @@ def write_event(path: Path, data: dict[str, Any]) -> Path:
 
 def retire_session(root: Path, role: str, name: str, text: str, run: Run) -> list[Path]:
     role_ok(role)
+    name = session_name(root, role, name)
     folder = session_path(root, role, name)
     data = read_map(folder / "session.yaml")
 

@@ -43,6 +43,36 @@ def session_path(root: Path, role: str, name: str) -> Path:
     return root / "out" / "agent" / "session" / role / name
 
 
+def current_session(root: Path, role: str) -> str:
+    base = root / "out" / "agent" / "session" / role
+
+    if not base.is_dir():
+        raise FileNotFoundError(str(base))
+
+    data: list[str] = []
+
+    for folder in sorted(base.iterdir()):
+        if not folder.is_dir():
+            continue
+
+        item = read_map(folder / "session.yaml")
+
+        if item.get("state") == "active":
+            data.append(folder.name)
+
+    if not data:
+        raise FileNotFoundError("active session")
+
+    return data[-1]
+
+
+def session_name(root: Path, role: str, name: str) -> str:
+    if name == "current":
+        return current_session(root, role)
+
+    return name
+
+
 def memory_path(root: Path, role: str) -> Path:
     return root / "out" / "agent" / "memory" / f"{role}.md"
 
@@ -163,7 +193,10 @@ def close_session(
     output.append(write_text(folder / "summary.md", summary_body))
     output.append(write_text(folder / "handoff.md", handoff_body))
     output.append(
-        write_text(memory_path(root, role), memory_text(role, name, memory_body, summary_body, run))
+        write_text(
+            memory_path(root, role),
+            memory_text(role, name, memory_body, summary_body, run),
+        )
     )
     output.append(write_text(handoff_path(root, role), handoff_body))
     output.append(Path(write_yaml(str(folder / "close.yaml"), close)))
@@ -173,11 +206,17 @@ def close_session(
     data["role_memory"] = str(memory_path(root, role).relative_to(root))
     data["role_handoff"] = str(handoff_path(root, role).relative_to(root))
     output.append(Path(write_yaml(str(folder / "session.yaml"), data)))
-    output.append(write_event(folder / "event.jsonl", event_data(role, name, "session-close", run)))
+    output.append(
+        write_event(
+            folder / "event.jsonl", event_data(role, name, "session-close", run)
+        )
+    )
     return output
 
 
-def write_session(root: Path, role: str, topic: str, run: Run) -> tuple[str, list[Path]]:
+def write_session(
+    root: Path, role: str, topic: str, run: Run
+) -> tuple[str, list[Path]]:
     topic = topic_text(topic)
     time = now_text()
     name = make_id(time, topic)
@@ -204,7 +243,9 @@ def write_session(root: Path, role: str, topic: str, run: Run) -> tuple[str, lis
     output.append(write_text(folder / "initial.md", initial_text(root, role)))
     output.append(write_text(folder / "message.jsonl", ""))
     output.append(write_text(folder / "event.jsonl", ""))
-    output.append(write_event(folder / "event.jsonl", event_data(role, name, "session-new", run)))
+    output.append(
+        write_event(folder / "event.jsonl", event_data(role, name, "session-new", run))
+    )
     return name, output
 
 
@@ -219,6 +260,7 @@ def rotate_session(
     run: Run,
 ) -> dict[str, Any]:
     role_ok(role)
+    name = session_name(root, role, name)
     output = close_session(root, role, name, memory, summary, handoff, run)
     target, data = write_session(root, role, topic, run)
     output.extend(data)

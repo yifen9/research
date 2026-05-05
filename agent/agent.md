@@ -35,6 +35,8 @@ This repository is the control repository for personal research infrastructure.
 - Do not add code comments.
 - Rule and workflow changes require architect-level approval.
 - Lower-level agents propose governance changes instead of applying them directly.
+- Chat approval must call the corresponding approval command.
+- Approval commands must create git commits for approved artifacts.
 
 ## Workflow
 
@@ -43,3 +45,4 @@ This repository is the control repository for personal research infrastructure.
 - Reviewer owns experiment proposal review and result acceptance.
 - Worker executes approved experiments and submits auditable results.
 - Approval must be represented as an explicit artifact or command, not only as chat.
+- Session rotation must use the session rotate command.

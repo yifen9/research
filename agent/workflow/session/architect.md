@@ -27,4 +27,6 @@
 - Architect session writes memory before close.
 - Architect close updates role memory for the next architect session.
 - Architect writes handoff before close when open work remains.
+- Architect uses rotate command for planned session transfer.
+- Architect uses retire command for mistaken sessions.
 - Architect can maintain workflow and context source.

@@ -3,6 +3,7 @@ word:
   - agent
   - architect
   - artifact
+  - branch
   - build
   - code
   - command

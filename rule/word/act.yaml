@@ -3,6 +3,7 @@ word:
   - approve
   - build
   - check
+  - claim
   - clean
   - close
   - copy
@@ -15,6 +16,7 @@ word:
   - push
   - read
   - reject
+  - release
   - retire
   - render
   - rotate

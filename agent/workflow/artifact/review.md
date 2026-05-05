@@ -13,6 +13,8 @@ Review artifacts evaluate result quality and decide accept or reject.
 - reason
 - risk
 - run
+- branch
+- commit
 
 ## Rule
 

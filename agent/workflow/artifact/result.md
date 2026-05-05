@@ -11,6 +11,8 @@ Result artifacts summarize worker execution output.
 - worker
 - state
 - run
+- branch
+- commit
 - output
 - check
 
