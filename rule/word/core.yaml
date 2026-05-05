@@ -3,8 +3,10 @@ word:
   - agent
   - architect
   - artifact
+  - backend
   - branch
   - build
+  - bun
   - code
   - command
   - commit
@@ -32,6 +34,7 @@ word:
   - manager
   - memory
   - name
+  - omo
   - opencode
   - output
   - part

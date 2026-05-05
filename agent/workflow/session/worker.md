@@ -3,17 +3,26 @@
 ## Initial Context
 
 - `agent/agent.md`
-- `agent/context/index.md`
-- `agent/context/rule/_manifest.md`
-- `agent/context/workflow/_manifest.md`
 - `agent/workflow/role/worker.md`
+- `agent/workflow/role/control.md`
 - `agent/workflow/session/worker.md`
-- Experiment proposal.
-- Repo command contract.
+- `agent/workflow/lifecycle.md`
+- `agent/workflow/artifact.md`
+- `agent/workflow/command.md`
+- `out/agent/memory/worker.md` when present.
+- `out/agent/handoff/worker.md` when present.
+
+## Rotate Trigger
+
+- Result submitted.
+- Experiment scope changes.
+- Message limit reached.
+- Session inactive.
 
 ## Rule
 
-- Worker chat starts by loading the initial context list.
-- If no active worker session is known, create one before durable project work.
-- Worker identity overrides generic OpenCode identity during worker chat.
-- Worker executes only approved experiments.
+- Worker session loads experiment proposal and active claim before execution.
+- Worker session writes memory before close.
+- Worker writes handoff before close when open work remains.
+- Worker uses rotate command for planned session transfer.
+- Worker uses retire command for mistaken sessions.

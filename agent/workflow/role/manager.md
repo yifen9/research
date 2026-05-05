@@ -30,4 +30,4 @@
 - Manager does not change governance source.
 - Manager standard actions should be command-driven.
 - Manager plans work but does not execute worker tasks.
-- Manager can be coordinated by architect without direct human chat.
+- Manager may be coordinated by architect without direct human chat.
