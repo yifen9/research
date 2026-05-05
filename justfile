@@ -62,38 +62,8 @@ s-agent-backend-write:
 s-agent-backend-check:
     uv run python script/agent/backend/check.py .
 
-s-project-repo-new NAME KIND:
-    uv run python script/project/repo/new.py . {{NAME}} {{KIND}}
-
-s-agent-session-close ROLE ID MEMORY SUMMARY:
-    uv run python script/agent/session/close.py . {{ROLE}} {{ID}} {{MEMORY}} {{SUMMARY}}
-
-s-agent-session-rotate ROLE ID MEMORY SUMMARY HANDOFF TOPIC:
-    uv run python script/agent/session/rotate.py . {{ROLE}} {{ID}} {{MEMORY}} {{SUMMARY}} {{HANDOFF}} {{TOPIC}}
-
-s-agent-session-retire ROLE ID REASON:
-    uv run python script/agent/session/retire.py . {{ROLE}} {{ID}} {{REASON}}
-
-s-agent-session-check:
-    uv run python script/agent/session/check.py .
-
-s-agent-handoff-write ROLE TEXT:
-    uv run python script/agent/handoff/write.py . {{ROLE}} {{TEXT}}
-
-s-agent-memory-write ROLE TEXT:
-    uv run python script/agent/memory/write.py . {{ROLE}} {{TEXT}}
-
-s-project-bench-check SLUG EXPERIMENT METRIC:
-    uv run python script/project/bench/check.py . {{SLUG}} {{EXPERIMENT}} {{METRIC}}
-
-s-project-data-add BASE:
-    uv run python script/project/data/add.py . {{BASE}}
-
-s-project-data-check:
-    uv run python script/project/data/check.py .
-
-s-project-data-scan:
-    uv run python script/project/data/scan.py .
+s-project-site-build:
+    uv run python script/project/site/build.py .
 
 s-project-proposal-new SLUG TITLE:
     uv run python script/project/proposal/new.py . {{SLUG}} {{TITLE}}
