@@ -3,12 +3,14 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from pathlib import Path
 import re
-import subprocess
 import sys
 from typing import Any
 
 from research.io.yaml import read_yaml, write_yaml
+from research.util.env import env_sha
+from research.util.git import branch_name, commit_sha
 from research.util.jlog import jline
+from research.util.lineage import make_lineage
 from research.util.run import Run, make_run, run_err, run_ok, task_name
 
 
@@ -38,30 +40,6 @@ def read_map(path: Path) -> dict[str, Any]:
     return data
 
 
-def git_call(root: Path, arg: list[str]) -> str:
-    result = subprocess.run(
-        ["git", *arg],
-        cwd=root,
-        text=True,
-        capture_output=True,
-        check=False,
-    )
-    output = (result.stdout + result.stderr).strip()
-
-    if result.returncode != 0:
-        raise RuntimeError(output)
-
-    return output
-
-
-def branch_text(root: Path) -> str:
-    return git_call(root, ["branch", "--show-current"])
-
-
-def base_text(root: Path) -> str:
-    return git_call(root, ["rev-parse", "HEAD"])
-
-
 def claim_path(root: Path, slug: str, experiment: str) -> Path:
     return root / "project" / slug / "experiment" / experiment / "claim.yaml"
 
@@ -75,17 +53,21 @@ def result_path(root: Path, slug: str, result: str) -> Path:
 
 
 def claim_ok(
-    root: Path, slug: str, experiment: str, role: str, session: str
+    root: Path,
+    slug: str,
+    experiment: str,
+    role: str,
+    session: str,
 ) -> dict[str, Any]:
     data = read_map(claim_path(root, slug, experiment))
 
-    if data.get("state") != "claimed":
+    if data["state"] != "claimed":
         raise ValueError("experiment is not claimed")
 
-    if data.get("role") != role:
+    if data["role"] != role:
         raise ValueError("claim role mismatch")
 
-    if data.get("session") != session:
+    if data["session"] != session:
         raise ValueError("claim session mismatch")
 
     return data
@@ -94,16 +76,52 @@ def claim_ok(
 def experiment_ok(root: Path, slug: str, experiment: str) -> dict[str, Any]:
     data = read_map(experiment_path(root, slug, experiment))
 
-    if data.get("project") != slug:
+    if data["project"] != slug:
         raise ValueError("experiment project mismatch")
 
-    if data.get("experiment") != experiment:
+    if data["experiment"] != experiment:
         raise ValueError("experiment slug mismatch")
 
-    if data.get("state") != "approved":
+    if data["state"] != "approved":
         raise ValueError("experiment is not approved")
 
     return data
+
+
+def code_block(root: Path, slug: str) -> dict[str, Any]:
+    return {
+        "repo": slug,
+        "branch": branch_name(root),
+        "sha": commit_sha(root),
+    }
+
+
+def env_block(root: Path) -> dict[str, Any]:
+    return {
+        "image": "ghcr.io/yifen9/research-dev",
+        "sha": env_sha(root),
+    }
+
+
+def run_block(run: Run) -> dict[str, Any]:
+    return {
+        "dir": run.run_dir,
+        "fingerprint": run.meta["fingerprint"],
+    }
+
+
+def data_block(meta: dict[str, Any]) -> list[dict[str, Any]]:
+    if "data" in meta and isinstance(meta["data"], list):
+        return meta["data"]
+
+    return []
+
+
+def seed_value(meta: dict[str, Any]) -> int:
+    if "seed" in meta:
+        return int(meta["seed"])
+
+    return 0
 
 
 def result_data(
@@ -114,27 +132,26 @@ def result_data(
     role: str,
     session: str,
     text: str,
+    meta: dict[str, Any],
     run: Run,
 ) -> dict[str, Any]:
-    time = now_text()
     return {
         "id": result,
+        "kind": "result",
         "project": slug,
         "experiment": experiment,
-        "kind": "result",
         "state": "submitted",
         "worker": role,
-        "role": role,
         "session": session,
-        "run": run.run_dir,
-        "branch": branch_text(root),
-        "base": base_text(root),
-        "target": f"project/{slug}/result/{result}",
-        "claim": f"project/{slug}/experiment/{experiment}/claim.yaml",
+        "timestamp": now_text(),
+        "lineage": make_lineage(
+            code=code_block(root, slug),
+            data=data_block(meta),
+            env=env_block(root),
+            seed=seed_value(meta),
+            run=run_block(run),
+        ),
         "output": text,
-        "check": [],
-        "created": time,
-        "updated": time,
     }
 
 
@@ -157,21 +174,23 @@ def submit_result(
         raise ValueError("empty text")
 
     claim_ok(root, slug, experiment, role, session)
-    data = experiment_ok(root, slug, experiment)
+    meta = experiment_ok(root, slug, experiment)
     path = result_path(root, slug, result)
 
     if path.exists():
         raise FileExistsError(str(path))
 
-    data["state"] = "result"
-    data["result"] = f"project/{slug}/result/{result}/meta.yaml"
-    data["updated"] = now_text()
+    meta["state"] = "result"
+    meta["result"] = f"project/{slug}/result/{result}/meta.yaml"
+    meta["updated"] = now_text()
     path.parent.mkdir(parents=True, exist_ok=True)
-    write_yaml(str(experiment_path(root, slug, experiment)), data)
+    write_yaml(str(experiment_path(root, slug, experiment)), meta)
     return Path(
         write_yaml(
             str(path),
-            result_data(root, slug, experiment, result, role, session, text, run),
+            result_data(
+                root, slug, experiment, result, role, session, text, meta, run
+            ),
         )
     )
 
@@ -219,7 +238,9 @@ def main(argv: list[str]) -> None:
     )
 
     try:
-        output = submit_result(root, slug, experiment, result, role, session, text, run)
+        output = submit_result(
+            root, slug, experiment, result, role, session, text, run
+        )
         run_ok(
             run,
             {

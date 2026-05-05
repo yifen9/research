@@ -54,6 +54,7 @@ word:
   - rule
   - run
   - script
+  - seed
   - session
   - site
   - src
