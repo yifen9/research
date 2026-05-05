@@ -1,10 +1,11 @@
 file:
   root:
     - rule
+    - agent
     - infra
+    - project
     - script
     - template
-    - context
     - include
     - build
 

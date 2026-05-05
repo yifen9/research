@@ -115,7 +115,7 @@ def make_index(target: Path, data: list[Path]) -> str:
     body.append("- Read this file first.")
     body.append("- Read manifest files before ordinary context files.")
     body.append("- Do not edit generated context files directly.")
-    body.append("- Regenerate context through script/context/* writers.")
+    body.append("- Regenerate context through script/agent/context/* writers.")
     body.append("")
 
     return "\n".join(body)

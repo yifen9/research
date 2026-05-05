@@ -105,10 +105,10 @@ def make_manifest(root: Path, target: Path, limit: int) -> str:
     body.append(f"- depth: {limit}")
     body.append("\n## Rule\n")
     body.append(
-        "- The research repository is the meta repository for rules, context, infrastructure, and agent workflow."
+        "- The research repository is the meta repository for rules, agent context, infrastructure, and agent workflow."
     )
-    body.append("- Do not edit generated context/project files manually.")
-    body.append("- Regenerate this directory with context-project-write.")
+    body.append("- Do not edit generated agent context files manually.")
+    body.append("- Regenerate this directory with agent-context-project-write.")
     body.append("")
 
     return "\n".join(body)
@@ -134,7 +134,9 @@ def make_overview(root: Path, target: Path) -> str:
     body.append("## Boundary\n")
     body.append("- src/ contains reusable internal library code.")
     body.append("- script/ contains executable task entrypoints.")
-    body.append("- context/ contains generated or maintained agent-readable knowledge.")
+    body.append(
+        "- agent/ contains agent guide, workflow source, and generated context."
+    )
     body.append("- out/ contains generated runtime artifacts and disposable outputs.")
     body.append("- rule/ contains the source of governance rules.")
     body.append("- infra/ contains infrastructure definitions.\n")

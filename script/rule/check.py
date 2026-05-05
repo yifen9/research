@@ -128,15 +128,22 @@ def skip_path(path: Path) -> bool:
         "__pycache__",
         "_extensions",
         "build",
-        "context",
         "out",
     }
 
-    for part in path.parts:
-        if part in skip:
+    part = path.parts
+
+    if len(part) > 1 and part[0] == "agent" and part[1] == "context":
+        return True
+
+    if part and part[0] == "context":
+        return True
+
+    for item in part:
+        if item in skip:
             return True
 
-        if part.endswith(".egg-info"):
+        if item.endswith(".egg-info"):
             return True
 
     return False
@@ -348,11 +355,16 @@ def check_dir(
     deny_set = set(rule["file"]["deny"])
     allow = set(rule["name"]["allow"])
 
-    for part in path.parts:
+    for index, part in enumerate(path.parts):
         if part in deny_set:
             bad.append((path, 0, part, "deny"))
 
         if part in allow:
+            continue
+
+        if index == 1 and path.parts[0] == "project":
+            if not good_kebab(part):
+                bad.append((path, 0, part, "case"))
             continue
 
         if part.startswith("."):
@@ -420,7 +432,9 @@ def path_list(root: Path) -> list[Path]:
     data: list[Path] = []
 
     for path in root.rglob("*"):
-        if not skip_path(path):
+        rel = path.relative_to(root)
+
+        if not skip_path(rel):
             data.append(path)
 
     return data

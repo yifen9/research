@@ -1,39 +1,60 @@
 word:
   - act
   - agent
+  - architect
+  - artifact
   - build
   - code
+  - command
+  - commit
   - conf
   - config
   - context
   - core
   - data
   - dev
+  - decision
   - design
   - doc
+  - experiment
   - file
   - full
+  - governance
+  - git
+  - handoff
   - image
   - infra
   - input
   - lang
+  - lifecycle
+  - manager
+  - memory
   - name
   - opencode
   - output
   - part
   - profile
   - project
+  - proposal
   - py
   - research
   - repo
+  - result
+  - review
+  - reviewer
+  - role
   - rule
   - run
   - script
+  - session
   - site
   - src
+  - stage
   - task
   - template
   - tool
   - user
   - util
+  - worker
+  - workflow
   - word

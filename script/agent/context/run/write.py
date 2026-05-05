@@ -100,8 +100,8 @@ def make_manifest(run_dir: Path, target: Path, limit: int) -> str:
     body.append("- Read latest.md first.")
     body.append("- Use recent.md only when recent history matters.")
     body.append("- Full audit artifacts remain under out/run.")
-    body.append("- Do not edit context/run/*.md manually.")
-    body.append("- Regenerate this directory with context-run-write.")
+    body.append("- Do not edit agent/context/run/*.md manually.")
+    body.append("- Regenerate this directory with agent-context-run-write.")
     body.append("")
 
     return "\n".join(body)

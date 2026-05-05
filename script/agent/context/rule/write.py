@@ -120,8 +120,8 @@ def make_manifest(rule_dir: Path, target: Path, index: dict[str, Any]) -> str:
     body.append("- [Word](./word.md)")
     body.append("\n## Rule\n")
     body.append("- YAML files under rule/ are the source of truth.")
-    body.append("- Markdown files under context/rule/ are generated.")
-    body.append("- Do not edit context/rule/*.md manually.")
+    body.append("- Markdown files under agent/context/rule/ are generated.")
+    body.append("- Do not edit agent/context/rule/*.md manually.")
     body.append("- Update rule/*.yaml first, then rerun context-rule-write.")
     body.append("")
 
@@ -153,15 +153,15 @@ def write_rule(root: Path, rule_dir: Path, target: Path, logger: Logger) -> list
         progress.step(1)
 
     word = make_word(rule_dir, index, logger)
-    word_out = target / "word.md"
-    output.append(write_text(word_out, word))
-    logger.info(jline("context", "rule", "write", {"path": str(word_out)}))
+    word_path = target / "word.md"
+    output.append(write_text(word_path, word))
+    logger.info(jline("context", "rule", "write", {"path": str(word_path)}))
     progress.step(1)
 
     manifest = make_manifest(rule_dir, target, index)
-    manifest_out = target / "_manifest.md"
-    output.append(write_text(manifest_out, manifest))
-    logger.info(jline("context", "rule", "write", {"path": str(manifest_out)}))
+    manifest_path = target / "_manifest.md"
+    output.append(write_text(manifest_path, manifest))
+    logger.info(jline("context", "rule", "write", {"path": str(manifest_path)}))
     progress.step(1)
 
     progress.finish()

@@ -14,8 +14,11 @@ This repository is the control repository for personal research infrastructure.
 ## Source
 
 - `rule/` is the governance source of truth.
-- `context/` is generated or maintained agent-readable context.
+- `agent/agent.md` is the agent entry guide.
+- `agent/workflow/` is the architect-maintained workflow source.
+- `agent/context/` is generated architect-maintained agent-readable context.
 - `script/` contains executable task entrypoints.
+- `project/` contains project source and project-scoped artifacts.
 - `src/` contains reusable internal Python code.
 - `infra/` contains generated and maintained infrastructure.
 - `template/` contains creation templates.
@@ -23,10 +26,10 @@ This repository is the control repository for personal research infrastructure.
 
 ## Rule
 
-- Read `context/index.md` before non-trivial work.
-- Read `context/rule/_manifest.md` before changing governed files.
-- Do not edit generated context files directly.
-- Regenerate context through `script/context/*` writers.
+- Read `agent/context/index.md` before non-trivial work.
+- Read `agent/context/rule/_manifest.md` before changing governed files.
+- Do not edit generated agent context files directly.
+- Regenerate context through `script/agent/context/*` writers.
 - Use singular directory names.
 - Keep the rule word list minimal.
 - Do not add code comments.

@@ -1,18 +1,25 @@
 word:
   - add
+  - approve
   - build
   - check
   - clean
+  - close
   - copy
   - fetch
   - init
   - list
   - load
   - make
+  - new
   - push
   - read
+  - reject
+  - retire
   - render
+  - rotate
   - scan
+  - submit
   - sync
   - test
   - update

@@ -18,7 +18,6 @@ name:
     - .git
     - .github
     - .devcontainer
-    - AGENTS.md
     - README.md
     - LICENSE
     - Dockerfile

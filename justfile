@@ -55,27 +55,58 @@ s-rule-check:
 s-infra-docker-write:
     uv run python script/infra/docker/write.py . full
 
-s-context-write:
-    just s-context-profile-user-write
-    just s-context-run-write
-    just s-context-rule-write
-    just s-context-project-write
-    just s-context-index-write
+s-agent-context-write:
+    just s-agent-context-profile-user-write
+    just s-agent-context-run-write
+    just s-agent-context-rule-write
+    just s-agent-context-project-write
+    just s-agent-context-workflow-write
+    just s-agent-context-index-write
 
-s-context-profile-user-write:
-    uv run python script/context/profile/user/write.py . https://github.com/yifen9/yifen9.li/archive/refs/heads/main.zip out/temp/source/profile/user context/profile/user
+s-agent-context-profile-user-write:
+    uv run python script/agent/context/profile/user/write.py . https://github.com/yifen9/yifen9.li/archive/refs/heads/main.zip out/temp/source/profile/user agent/context/profile/user
 
-s-context-run-write:
-    uv run python script/context/run/write.py . out/run context/run 64
+s-agent-context-run-write:
+    uv run python script/agent/context/run/write.py . out/run agent/context/run 64
 
-s-context-rule-write:
-    uv run python script/context/rule/write.py . rule context/rule
+s-agent-context-rule-write:
+    uv run python script/agent/context/rule/write.py . rule agent/context/rule
 
-s-context-project-write:
-    uv run python script/context/project/write.py . context/project 4
+s-agent-context-project-write:
+    uv run python script/agent/context/project/write.py . agent/context/project 4
 
-s-context-index-write:
-    uv run python script/context/index/write.py . context
+s-agent-context-workflow-write:
+    uv run python script/agent/context/workflow/write.py . agent/workflow agent/context/workflow
+
+s-agent-context-index-write:
+    uv run python script/agent/context/index/write.py . agent/context
+
+s-agent-session-new ROLE TOPIC:
+    uv run python script/agent/session/new.py . {{ROLE}} {{TOPIC}}
+
+s-agent-session-close ROLE ID MEMORY SUMMARY:
+    uv run python script/agent/session/close.py . {{ROLE}} {{ID}} {{MEMORY}} {{SUMMARY}}
+
+s-agent-session-rotate ROLE ID MEMORY SUMMARY HANDOFF TOPIC:
+    uv run python script/agent/session/rotate.py . {{ROLE}} {{ID}} {{MEMORY}} {{SUMMARY}} {{HANDOFF}} {{TOPIC}}
+
+s-agent-session-retire ROLE ID TEXT:
+    uv run python script/agent/session/retire.py . {{ROLE}} {{ID}} {{TEXT}}
+
+s-agent-session-check:
+    uv run python script/agent/session/check.py .
+
+s-agent-handoff-write ROLE ID HANDOFF:
+    uv run python script/agent/handoff/write.py . {{ROLE}} {{ID}} {{HANDOFF}}
+
+s-project-proposal-new SLUG TITLE:
+    uv run python script/project/proposal/new.py . {{SLUG}} {{TITLE}}
+
+s-project-proposal-check SLUG:
+    uv run python script/project/proposal/check.py . {{SLUG}}
+
+s-project-proposal-approve SLUG ROLE TEXT:
+    uv run python script/project/proposal/approve.py . {{SLUG}} {{ROLE}} {{TEXT}}
 
 o-doctor:
     opencode --version

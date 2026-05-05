@@ -74,10 +74,10 @@ def copy_md(source: Path, target: Path, logger: Logger) -> list[Path]:
 
     for path in data:
         rel = path.relative_to(source)
-        out = target / rel
-        out.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(path, out)
-        output.append(out)
+        target_path = target / rel
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(path, target_path)
+        output.append(target_path)
         logger.info(
             jline(
                 "profile",
@@ -85,7 +85,7 @@ def copy_md(source: Path, target: Path, logger: Logger) -> list[Path]:
                 "copy",
                 {
                     "source": str(path),
-                    "target": str(out),
+                    "target": str(target_path),
                 },
             )
         )

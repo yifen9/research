@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "instructions": ["AGENTS.md"],
+  "instructions": ["agent/agent.md"],
   "share": "manual",
   "autoupdate": "notify",
   "permission": {
