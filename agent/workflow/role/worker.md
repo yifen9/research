@@ -5,6 +5,7 @@
 - Execute approved experiments.
 - Produce auditable results.
 - Submit result artifacts for review.
+- Ask reviewer, manager, or architect when execution is blocked.
 
 ## Input
 
@@ -18,6 +19,7 @@
 - Run artifact.
 - Result artifact.
 - Patch if required by the experiment.
+- Question to higher role.
 
 ## Gate
 
@@ -26,3 +28,4 @@
 - Worker does not plan project scope.
 - Worker does not change governance source.
 - Worker must claim an experiment before execution.
+- Worker can be coordinated by architect without direct human chat.

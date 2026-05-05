@@ -9,6 +9,8 @@ Proposal artifacts define intended project, stage, or experiment work before exe
 - `project/<slug>/proposal/meta.yaml`
 - `project/<slug>/proposal/main.tex`
 - `project/<slug>/proposal/decision.yaml`
+- `project/<slug>/stage/<stage>/meta.yaml`
+- `project/<slug>/experiment/<experiment>/meta.yaml`
 
 ## State
 

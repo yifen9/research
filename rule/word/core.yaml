@@ -11,6 +11,7 @@ word:
   - conf
   - config
   - context
+  - control
   - core
   - data
   - dev
@@ -38,6 +39,7 @@ word:
   - project
   - proposal
   - py
+  - question
   - research
   - repo
   - result

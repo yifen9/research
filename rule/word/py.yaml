@@ -1,10 +1,12 @@
 word:
   - allow
   - any
+  - answer
   - append
   - arg
   - argv
   - archive
+  - ask
   - ast
   - atom
   - audit
@@ -133,6 +135,7 @@ word:
   - prog
   - profile
   - progress
+  - question
   - rate
   - reader
   - recent

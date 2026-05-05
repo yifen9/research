@@ -40,9 +40,15 @@ This repository is the control repository for personal research infrastructure.
 
 ## Workflow
 
+- Human chat goes through architect by default.
 - Architect owns cross-project research proposals and governance changes.
+- Architect conducts multi-turn clarification before creating or changing project artifacts.
+- Architect may coordinate manager, worker, and reviewer actions through commands and artifacts.
+- Human does not need to chat with manager, worker, or reviewer directly.
 - Manager owns one project and translates approved research proposals into stages.
 - Reviewer owns experiment proposal review and result acceptance.
 - Worker executes approved experiments and submits auditable results.
 - Approval must be represented as an explicit artifact or command, not only as chat.
 - Session rotation must use the session rotate command.
+- If human intent is unclear, ask one focused question before writing artifacts.
+- If human intent is clear, update artifacts through `just` commands instead of only explaining.

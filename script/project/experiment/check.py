@@ -12,6 +12,7 @@ from research.util.run import Run, make_run, run_err, run_ok, task_name
 
 ROLE = {"architect", "manager", "reviewer", "worker"}
 STATE = {"claimed", "released"}
+EXP_STATE = {"approved", "result", "accepted", "rejected", "failed", "amend"}
 FIELD = {
     "id",
     "project",
@@ -20,6 +21,22 @@ FIELD = {
     "state",
     "role",
     "session",
+    "run",
+    "branch",
+    "base",
+    "target",
+    "created",
+    "updated",
+}
+EXP_FIELD = {
+    "id",
+    "project",
+    "stage",
+    "experiment",
+    "kind",
+    "state",
+    "title",
+    "role",
     "run",
     "branch",
     "base",
@@ -102,6 +119,32 @@ def check_claim(root: Path, path: Path) -> list[dict[str, Any]]:
     return bad
 
 
+def check_meta(root: Path, path: Path) -> list[dict[str, Any]]:
+    bad: list[dict[str, Any]] = []
+    data = read_map(path)
+    rel = path.relative_to(root)
+    slug = rel.parts[1]
+    experiment = rel.parts[3]
+
+    for field in sorted(EXP_FIELD):
+        if field not in data:
+            bad.append(bad_item(path, "field", field))
+
+    if data.get("project") != slug:
+        bad.append(bad_item(path, "project", str(data.get("project"))))
+
+    if data.get("experiment") != experiment:
+        bad.append(bad_item(path, "experiment", str(data.get("experiment"))))
+
+    if data.get("kind") != "experiment":
+        bad.append(bad_item(path, "kind", str(data.get("kind"))))
+
+    if data.get("state") not in EXP_STATE:
+        bad.append(bad_item(path, "state", str(data.get("state"))))
+
+    return bad
+
+
 def check_experiment(root: Path) -> list[dict[str, Any]]:
     base = root / "project"
 
@@ -109,6 +152,19 @@ def check_experiment(root: Path) -> list[dict[str, Any]]:
         return []
 
     bad: list[dict[str, Any]] = []
+
+    for path in sorted(base.glob("*/experiment/*/meta.yaml")):
+        rel = path.relative_to(root)
+        slug = rel.parts[1]
+        experiment = rel.parts[3]
+
+        if not slug_ok(slug):
+            bad.append(bad_item(path, "slug", slug))
+
+        if not slug_ok(experiment):
+            bad.append(bad_item(path, "experiment", experiment))
+
+        bad.extend(check_meta(root, path))
 
     for path in sorted(base.glob("*/experiment/*/claim.yaml")):
         rel = path.relative_to(root)

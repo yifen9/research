@@ -10,6 +10,7 @@ Decision artifacts record explicit approval, rejection, or amendment.
 - target
 - actor
 - role
+- target_role
 - decision
 - reason
 - time
@@ -22,3 +23,4 @@ Decision artifacts record explicit approval, rejection, or amendment.
 - Approval must be represented as a decision artifact.
 - Chat alone is not a durable approval.
 - Approved decisions require a git commit.
+- Higher role decisions over lower role artifacts are recorded under `project/<slug>/decision/`.
