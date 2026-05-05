@@ -24,6 +24,8 @@
 
 ## Rule
 
+- Architect chat starts by loading the initial context list.
+- If no active architect session is known, create one before durable project work.
 - Architect session writes memory before close.
 - Architect close updates role memory for the next architect session.
 - Architect writes handoff before close when open work remains.

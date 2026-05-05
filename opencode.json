@@ -1,6 +1,17 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "instructions": ["agent/agent.md"],
+  "instructions": [
+    "agent/agent.md",
+    "agent/workflow/role/architect.md",
+    "agent/workflow/session/architect.md",
+    "agent/workflow/role/manager.md",
+    "agent/workflow/session/manager.md",
+    "agent/workflow/role/reviewer.md",
+    "agent/workflow/session/reviewer.md",
+    "agent/workflow/role/worker.md",
+    "agent/workflow/session/worker.md",
+    "agent/workflow/role/control.md"
+  ],
   "share": "manual",
   "autoupdate": "notify",
   "permission": {
