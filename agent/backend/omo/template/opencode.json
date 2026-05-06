@@ -3,17 +3,12 @@
   "instructions": [
     "agent/agent.md",
     "agent/workflow/role/architect.md",
-    "agent/workflow/role/manager.md",
-    "agent/workflow/role/reviewer.md",
-    "agent/workflow/role/worker.md",
-    "agent/workflow/role/control.md",
     "agent/workflow/session/architect.md",
-    "agent/workflow/session/manager.md",
-    "agent/workflow/session/reviewer.md",
-    "agent/workflow/session/worker.md",
     "agent/workflow/lifecycle.md",
     "agent/workflow/artifact.md",
-    "agent/workflow/command.md"
+    "agent/workflow/command.md",
+    "config/agent.yaml",
+    "config/rule/index.yaml"
   ],
   "plugin": ["oh-my-openagent"],
   "share": "manual",
@@ -32,7 +27,7 @@
       ".git/**",
       ".venv/**",
       ".ruff_cache/**",
-      "build/**",
+      "doc/build/**",
       "out/**",
       "__pycache__/**"
     ]

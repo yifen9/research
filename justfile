@@ -7,7 +7,8 @@ init:
     just py-doctor
     just s-agent-backend-write
     just s-agent-backend-check
-    just q-doctor
+    just s-rule-check
+    just doc-check
 
 py-doctor:
     just py-venv
@@ -50,11 +51,14 @@ py-lint:
 py-lint-check:
     uv run ruff check .
 
+py-test:
+    uv run python -m unittest discover -s test
+
+py-compile:
+    uv run python -m compileall src script test
+
 s-rule-check:
     uv run python script/rule/check.py .
-
-s-infra-docker-write:
-    uv run python script/infra/docker/write.py . full
 
 s-agent-backend-write:
     uv run python script/agent/backend/write.py .
@@ -62,73 +66,12 @@ s-agent-backend-write:
 s-agent-backend-check:
     uv run python script/agent/backend/check.py .
 
-s-project-site-build:
-    uv run python script/project/site/build.py .
+s-agent-session-check:
+    uv run python script/agent/session/check.py .
 
-s-project-proposal-new SLUG TITLE:
-    uv run python script/project/proposal/new.py . {{SLUG}} {{TITLE}}
-
-s-project-proposal-check SLUG:
-    uv run python script/project/proposal/check.py . {{SLUG}}
-
-s-project-proposal-approve SLUG ROLE TEXT:
-    uv run python script/project/proposal/approve.py . {{SLUG}} {{ROLE}} {{TEXT}}
-
-s-project-stage-new SLUG STAGE TITLE:
-    uv run python script/project/stage/new.py . {{SLUG}} {{STAGE}} {{TITLE}}
-
-s-project-experiment-new SLUG STAGE EXPERIMENT TITLE:
-    uv run python script/project/experiment/new.py . {{SLUG}} {{STAGE}} {{EXPERIMENT}} {{TITLE}}
-
-s-project-experiment-claim SLUG EXPERIMENT ROLE SESSION:
-    uv run python script/project/experiment/claim.py . {{SLUG}} {{EXPERIMENT}} {{ROLE}} {{SESSION}}
-
-s-project-experiment-release SLUG EXPERIMENT ROLE REASON:
-    uv run python script/project/experiment/release.py . {{SLUG}} {{EXPERIMENT}} {{ROLE}} {{REASON}}
-
-s-project-experiment-check:
-    uv run python script/project/experiment/check.py .
-
-s-project-result-submit SLUG EXPERIMENT RESULT ROLE SESSION TEXT:
-    uv run python script/project/result/submit.py . {{SLUG}} {{EXPERIMENT}} {{RESULT}} {{ROLE}} {{SESSION}} {{TEXT}}
-
-s-project-review-submit SLUG RESULT ROLE DECISION TEXT:
-    uv run python script/project/review/submit.py . {{SLUG}} {{RESULT}} {{ROLE}} {{DECISION}} {{TEXT}}
-
-s-project-question-ask SLUG ID ROLE TARGET_ROLE TARGET TEXT:
-    uv run python script/project/question/ask.py . {{SLUG}} {{ID}} {{ROLE}} {{TARGET_ROLE}} {{TARGET}} {{TEXT}}
-
-s-project-question-answer SLUG ID ROLE TEXT:
-    uv run python script/project/question/answer.py . {{SLUG}} {{ID}} {{ROLE}} {{TEXT}}
-
-s-project-question-check:
-    uv run python script/project/question/check.py .
-
-s-project-decision-submit SLUG ID ROLE TARGET_ROLE TARGET DECISION TEXT:
-    uv run python script/project/decision/submit.py . {{SLUG}} {{ID}} {{ROLE}} {{TARGET_ROLE}} {{TARGET}} {{DECISION}} {{TEXT}}
-
-s-project-decision-check:
-    uv run python script/project/decision/check.py .
-
-s-project-scan SLUG:
-    uv run python script/project/scan.py . {{SLUG}}
-
-q-doctor:
+doc-check:
     quarto check
-    quarto --version
+    quarto render doc
 
-q-preview:
-    quarto preview
-
-q-preview-render:
-    quarto preview --render all
-
-q-render:
-    quarto render
-
-q-clean:
-    rm -rf build .quarto
-
-q-rebuild:
-    just q-clean
-    just q-render
+doc-render:
+    quarto render doc

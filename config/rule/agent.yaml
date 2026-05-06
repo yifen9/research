@@ -1,0 +1,27 @@
+agent:
+  code:
+    obey: config/rule/code.yaml
+
+  name:
+    obey: config/rule/name.yaml
+
+  file:
+    obey: config/rule/file.yaml
+
+  config:
+    obey: config/rule/config.yaml
+
+  design:
+    obey: config/rule/design.yaml
+
+  word:
+    obey: config/rule/word
+
+  change:
+    new_word: false
+    new_rule: false
+    silent: false
+
+  output:
+    comment: false
+    extra: false

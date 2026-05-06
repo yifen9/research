@@ -25,11 +25,11 @@ jobs:
 
       - uses: quarto-dev/quarto-actions/setup@v2
 
-      - run: quarto render
+      - run: quarto render doc
 
       - uses: actions/upload-pages-artifact@v5
         with:
-          path: build
+          path: doc/build
 
   deploy:
     runs-on: ubuntu-latest

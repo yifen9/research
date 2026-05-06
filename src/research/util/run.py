@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import os
 from pathlib import Path
+import re
 from typing import Any
 
 import yaml
@@ -35,9 +36,19 @@ def env_text() -> str:
     body: list[str] = []
 
     for key, value in sorted(os.environ.items()):
-        body.append(f"{key}={value}")
+        body.append(f"{key}={env_value(key, value)}")
 
     return "\n".join(body) + "\n"
+
+
+def env_value(key: str, value: str) -> str:
+    if re.search(r"(?i)password|passwd|pwd|secret|token|key|credential", key):
+        return "[REDACTED]"
+
+    value = re.sub(r"(?i)(password|passwd|pwd|secret|token|api[_-]?key)(\s*[:=]\s*)([^\s,;]+)", r"\1\2[REDACTED]", value)
+    value = re.sub(r"(?i)bearer\s+[a-z0-9._~+/=-]+", "Bearer [REDACTED]", value)
+    value = re.sub(r"\b[A-Za-z0-9_=-]{32,}\b", "[REDACTED]", value)
+    return value
 
 
 def write_env(root: Path, name: str) -> Path:

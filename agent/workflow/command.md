@@ -1,48 +1,37 @@
 # Command
 
-## Approve
+## Backend Write
 
-- Approval turns chat approval into durable decision artifacts.
-- Approval must call a command and write `decision.yaml`.
-- Project proposal approval writes `project/<slug>/proposal/decision.yaml`.
-- Approval must create a git commit for the approved artifact.
-- Approval commit messages must state the approved artifact and why it is being activated.
-- Approval commits should happen on scoped branches rather than the main line.
+- Backend write renders root backend config from the active backend template.
+- Backend write reads `config/agent.yaml` for the active backend name.
 
-## Reject
+## Backend Check
 
-- Rejection turns chat rejection into durable decision artifacts.
-- Rejection writes `decision.yaml` with rejected state and reason.
-- Rejection must create a git commit for the rejected artifact.
+- Backend check verifies rendered root backend config matches the active backend template.
+- Backend check fails when active backend source or rendered config is missing.
 
-## Ask
+## Session New
 
-- Ask raises a question artifact targeting a higher role or specific artifact.
-- Ask records the asking role and the target.
+- Session new creates an active session artifact.
+- Session new connects to the configured vector backend before the session is accepted.
 
-## Answer
+## Session Message
 
-- Answer resolves a question artifact.
-- Answer records the answering role and the resolution text.
+- Session message appends a redacted message event to `message.jsonl`.
+- Session message ingests the message into the configured vector backend.
 
-## Claim
+## Session Heartbeat
 
-- Claim records that a worker has taken an experiment.
-- One experiment may have only one active claim.
+- Session heartbeat verifies vector entries for recorded messages.
+- Session heartbeat repairs missing message vector entries.
 
-## Release
+## Session Sync
 
-- Release ends an active claim before completion.
-- Release records the releasing role and reason.
+- Session sync ingests recorded messages that are missing from the vector backend.
 
-## Submit
+## Session Check
 
-- Submit writes a result artifact for an experiment.
-- Submit references the run audit directory.
-
-## Scan
-
-- Scan inspects project artifacts and reports state inconsistencies.
+- Session check verifies session artifacts and vector coverage.
 
 ## Close
 

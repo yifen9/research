@@ -1,9 +1,10 @@
-/.quarto/
+/doc/.quarto/
 /.opencode/
 /agent/context
 /opencode.json
 /out
 
+/doc/build
 build
 index_files
 
@@ -16,6 +17,8 @@ index_files
 .pytest_cache
 .ruff_cache
 .venv
+
+.sisyphus
 
 __pycache__
 target

@@ -3,15 +3,17 @@ from __future__ import annotations
 from datetime import datetime
 from pathlib import Path
 import re
+import shutil
 from typing import Any
 
-from research.agent.audit import append_event, session_dir, utc_now
+from research.agent.audit import append_event, append_message, session_dir, utc_now
 from research.agent.memory import write_memory
+from research.agent.vector import add_heartbeat, add_message, check_store, missing_message, sync_message
 from research.io.text import write_text
 from research.io.yaml import read_yaml, write_yaml
 
 
-ROLE = {"architect", "manager", "reviewer", "worker"}
+ROLE = {"architect"}
 
 
 def role_ok(role: str) -> None:
@@ -45,6 +47,25 @@ def write_session(root: Path, role: str, name: str, data: dict[str, Any]) -> Pat
     return Path(write_yaml(str(session_yaml(root, role, name)), data))
 
 
+def heartbeat(root: Path, role: str, name: str, run: str, time: str) -> Path:
+    add_heartbeat(root, role, name, run, time)
+    sync_message(root, role, name)
+    event: dict[str, Any] = {
+        "time": time,
+        "event": "vector-heartbeat",
+        "role": role,
+        "name": name,
+        "run": run,
+    }
+    return append_event(root, role, name, event)
+
+
+def record_message(root: Path, role: str, name: str, data: dict[str, Any]) -> Path:
+    path = append_message(root, role, name, data)
+    add_message(root, role, name, data)
+    return path
+
+
 def initial_text(role: str) -> str:
     body: list[str] = []
 
@@ -52,13 +73,19 @@ def initial_text(role: str) -> str:
     body.append("## Read")
     body.append("- agent/agent.md")
     body.append(f"- agent/workflow/role/{role}.md")
-    body.append("- agent/workflow/role/control.md")
     body.append(f"- agent/workflow/session/{role}.md")
     body.append("- agent/workflow/lifecycle.md")
     body.append("- agent/workflow/artifact.md")
     body.append("- agent/workflow/command.md")
+    body.append("- config/rule/")
+    body.append("- config/agent.yaml")
     body.append(f"- out/agent/memory/{role}.md when present")
     body.append(f"- out/agent/handoff/{role}.md when present")
+    body.append("")
+    body.append("## Cycle")
+    body.append("- Review completed work")
+    body.append("- Summarize current state")
+    body.append("- Forecast risk and next choices")
     body.append("")
 
     return "\n".join(body)
@@ -89,14 +116,20 @@ def make_session(root: Path, role: str, topic: str, run: str) -> tuple[str, list
     output.append(write_text(folder / "initial.md", initial_text(role)))
     output.append(write_text(folder / "message.jsonl", ""))
     output.append(write_text(folder / "event.jsonl", ""))
-    event: dict[str, Any] = {
-        "time": time,
-        "event": "session-new",
-        "role": role,
-        "name": name,
-        "run": run,
-    }
-    output.append(append_event(root, role, name, event))
+    try:
+        check_store(root, role, name)
+        event: dict[str, Any] = {
+            "time": time,
+            "event": "session-new",
+            "role": role,
+            "name": name,
+            "run": run,
+        }
+        output.append(append_event(root, role, name, event))
+        output.append(heartbeat(root, role, name, run, time))
+    except (FileNotFoundError, KeyError, OSError, TypeError, ValueError):
+        shutil.rmtree(folder)
+        raise
     return name, output
 
 
@@ -172,6 +205,13 @@ def check_session(root: Path, role: str, name: str) -> list[str]:
     for child in ["session.yaml", "initial.md", "message.jsonl", "event.jsonl"]:
         if not (folder / child).is_file():
             bad.append(child)
+
+    try:
+        check_store(root, role, name)
+        if missing_message(root, role, name):
+            bad.append("vector")
+    except OSError:
+        bad.append("vector")
 
     return bad
 

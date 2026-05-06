@@ -1,0 +1,33 @@
+ai:
+  dialogue:
+    language: chinese
+    choice: true
+
+  artifact:
+    language: english
+
+  component:
+    replaceable: true
+
+  boundary:
+    source: directory
+
+  mode:
+    explicit: true
+
+  cycle:
+    review: true
+    summary: true
+    foresight: true
+
+  handoff:
+    review: true
+    summary: true
+    next: true
+    risk: true
+    choice: true
+
+  autonomy:
+    human: high
+    ai: middle
+    script: low

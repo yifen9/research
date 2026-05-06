@@ -3,7 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 import sys
 
-from research.agent.session import make_session
+from research.agent.audit import message_record
+from research.agent.session import record_message
 from research.util.jlog import jline
 from research.util.run import Run, make_run, run_err, run_ok, task_name
 
@@ -26,39 +27,42 @@ def fail(run: Run, comp: str, error: BaseException) -> None:
 
 
 def main(argv: list[str]) -> None:
-    if len(argv) != 4:
-        raise ValueError("usage: new.py ROOT ROLE TOPIC")
+    if len(argv) != 7:
+        raise ValueError("usage: message.py ROOT ROLE SESSION ACTOR KIND TEXT")
 
     root = Path(argv[1]).resolve()
     role = argv[2]
-    topic = argv[3]
+    name = argv[3]
+    actor = argv[4]
+    kind = argv[5]
+    text = argv[6]
     script = Path(__file__).resolve()
     task = task_name(root, script)
 
     run = make_run(
         root=root,
         name=task,
-        params={"task": task, "role": role, "topic": topic},
+        params={"task": task, "role": role, "name": name, "actor": actor, "kind": kind},
         script=script,
         src=root / "src",
         config=None,
     )
 
     try:
-        name, output = make_session(root, role, topic, run.run_dir)
+        path = record_message(root, role, name, message_record(actor, text, kind, run.run_dir))
         run_ok(
             run,
             {
                 "task": task,
                 "role": role,
-                "topic": topic,
                 "name": name,
-                "output": [str(path) for path in output],
+                "actor": actor,
+                "kind": kind,
+                "output": str(path),
             },
         )
-
-    except (ValueError, FileExistsError, FileNotFoundError, OSError, KeyError, TypeError) as error:
-        fail(run, "session", error)
+    except (ValueError, FileNotFoundError, OSError, KeyError, TypeError) as error:
+        fail(run, "session-message", error)
 
 
 if __name__ == "__main__":

@@ -22,3 +22,6 @@ jobs:
 
       - name: rule check
         run: uv run python script/rule/check.py .
+
+      - name: test
+        run: uv run python -m unittest discover -s test

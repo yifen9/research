@@ -1,0 +1,22 @@
+file:
+  root:
+    - agent
+    - config
+    - doc
+    - infra
+    - project
+    - script
+    - src
+    - test
+
+  prefer:
+    config:
+      - yaml
+      - toml
+      - json
+
+  deny:
+    - scripts
+    - templates
+    - rules
+    - configs

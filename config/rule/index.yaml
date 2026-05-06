@@ -1,0 +1,11 @@
+rule:
+  - code
+  - name
+  - file
+  - config
+  - design
+  - agent
+  - ai
+
+word:
+  - core

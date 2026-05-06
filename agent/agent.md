@@ -4,50 +4,37 @@
 
 This repository is the control repository for personal research infrastructure.
 
-## Foundation
+## Source
 
 - GitHub stores source, automation, packages, and published outputs.
 - Devcontainer provides the standard research environment.
-- Quarto publishes the research overview site.
-- The active agent backend is selected by `config/agent.yaml`.
-
-## Source
-
-- `rule/` is the governance source of truth.
+- `config/rule/` is the governance source of truth.
+- `config/template/` is reusable template source.
+- `config/agent.yaml` selects the active backend and vector backend.
 - `agent/agent.md` is the agent entry guide.
-- `agent/workflow/` is the architect-maintained workflow source.
-- `agent/backend/` is the per-backend manifest and template source.
-- `agent/context/` is generated agent-readable context.
-- `config/` is repository configuration source.
+- `agent/workflow/` is the minimal architect workflow source.
+- `agent/backend/` is backend manifest and template source.
+- `doc/` contains the Quarto site source.
 - `script/` contains executable task entrypoints.
 - `src/` contains reusable internal Python code.
-- `infra/` contains generated and maintained infrastructure.
-- `template/` contains creation templates.
-- `out/` contains runtime output and audit artifacts.
+- `out/` contains runtime audit artifacts and may be cleared.
+
+## Priority
+
+- P0: active backend only, architect role only, vector backend required, session command required, every message written to `message.jsonl` and vector backend, memory written before close.
+- P1: singular directory names, generated backend root config ignored by git, backend config rendered from the active backend template, workflow and backend changes require architect approval.
+- P2: strict naming vocabulary, Python/code limits, no code comments unless explicitly approved, no silent fallback for required infrastructure.
 
 ## Rule
 
+- Human chat goes through architect by default.
+- Dialogue with the human is Chinese by default; durable artifacts are English by default.
+- Offer bounded choices to the human whenever possible.
 - The active backend is the only backend the human chats through.
+- Components must remain replaceable through explicit config and command contracts.
 - Backend-specific configuration files are rendered from `agent/backend/<name>/template/` to the repository root.
 - Backend-specific configuration files at the repository root are not committed.
-- If the human calls `architect`, `manager`, `reviewer`, or `worker`, that named role is the active role.
-- Before answering as a named role, read `agent/workflow/role/<role>.md` and `agent/workflow/session/<role>.md`.
-- The named workflow role overrides the backend identity during role chat.
-- Use singular directory names.
-- Do not edit generated agent context files directly.
-- Regenerate context through `script/agent/context/*` writers.
-- Do not add code comments.
+- Before durable workflow work, read `agent/workflow/role/architect.md`, `agent/workflow/session/architect.md`, `config/rule/`, and `config/agent.yaml`.
+- Architect workflow identity overrides the backend identity during role chat.
 - Rule, workflow, and backend manifest changes require architect-level approval.
-- Lower-level agents propose governance changes instead of applying them directly.
 - Approval commands must create git commits for approved artifacts.
-
-## Workflow
-
-- Human chat goes through architect by default.
-- Architect owns cross-project research proposals and governance changes.
-- Architect coordinates manager, reviewer, and worker actions through commands and artifacts.
-- Manager owns one project and translates approved research proposals into stages.
-- Reviewer owns experiment proposal review and result acceptance.
-- Worker executes approved experiments and submits auditable results.
-- Approval must be represented as an explicit artifact or command, not only as chat.
-- Project artifacts live under `project/<slug>/`.
