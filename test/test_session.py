@@ -6,7 +6,9 @@ import unittest
 
 from research.agent.audit import append_message, message_record
 from research.agent.audit import session_dir
+from research.agent.session import close_session
 from research.agent.session import make_session
+from research.agent.session import rotate_session
 from research.agent.store import LocalJsonlStore
 from research.io.jsonl import read_jsonl
 from research.io.yaml import write_yaml
@@ -29,6 +31,31 @@ def write_conf(root: Path) -> None:
             },
         },
     )
+
+
+def template_text(title: str) -> str:
+    return f"""# {title}
+
+## Review
+
+Done.
+
+## Summary
+
+State.
+
+## Next
+
+Continue.
+
+## Risk
+
+None.
+
+## Choice
+
+- Continue.
+"""
 
 
 class AgentSessionTest(unittest.TestCase):
@@ -84,6 +111,42 @@ class AgentSessionTest(unittest.TestCase):
     def test_env(self) -> None:
         self.assertEqual(env_value("API_TOKEN", "abc123"), "[REDACTED]")
         self.assertEqual(env_value("NAME", "token=abc123 ok"), "token=[REDACTED] ok")
+
+    def test_close(self) -> None:
+        with TemporaryDirectory() as temp:
+            root = Path(temp)
+            write_conf(root)
+            name, _ = make_session(root, "architect", "Close", "run-1")
+
+            with self.assertRaises(ValueError):
+                close_session(root, "architect", name, "# Memory", "summary", "run-2")
+
+            output = close_session(root, "architect", name, template_text("Memory"), "summary", "run-3")
+
+        self.assertTrue(output)
+
+    def test_rotate(self) -> None:
+        with TemporaryDirectory() as temp:
+            root = Path(temp)
+            write_conf(root)
+            name, _ = make_session(root, "architect", "Rotate", "run-1")
+
+            with self.assertRaises(ValueError):
+                rotate_session(root, "architect", name, template_text("Memory"), "summary", "# Handoff", "Next", "run-2")
+
+            new_name, output = rotate_session(
+                root,
+                "architect",
+                name,
+                template_text("Memory"),
+                "summary",
+                template_text("Handoff"),
+                "Next",
+                "run-3",
+            )
+
+        self.assertIn("next", new_name)
+        self.assertTrue(output)
 
 
 if __name__ == "__main__":

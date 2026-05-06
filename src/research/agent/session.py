@@ -14,6 +14,7 @@ from research.io.yaml import read_yaml, write_yaml
 
 
 ROLE = {"architect"}
+TEMPLATE_PART = ["Review", "Summary", "Next", "Risk", "Choice"]
 
 
 def role_ok(role: str) -> None:
@@ -45,6 +46,16 @@ def read_session(root: Path, role: str, name: str) -> dict[str, Any]:
 
 def write_session(root: Path, role: str, name: str, data: dict[str, Any]) -> Path:
     return Path(write_yaml(str(session_yaml(root, role, name)), data))
+
+
+def check_part(text: str, kind: str) -> None:
+    for part in TEMPLATE_PART:
+        if f"## {part}" not in text:
+            raise ValueError(f"{kind} missing {part}")
+
+
+def missing_part(text: str) -> list[str]:
+    return [part for part in TEMPLATE_PART if f"## {part}" not in text]
 
 
 def heartbeat(root: Path, role: str, name: str, run: str, time: str) -> Path:
@@ -148,6 +159,7 @@ def close_session(
     run: str,
 ) -> list[Path]:
     role_ok(role)
+    check_part(memory_text, "memory")
     data = read_session(root, role, name)
 
     if data["state"] != "active":
@@ -212,6 +224,20 @@ def check_session(root: Path, role: str, name: str) -> list[str]:
         if not (folder / child).is_file():
             bad.append(child)
 
+    if (folder / "session.yaml").is_file():
+        data = read_session(root, role, name)
+        if data.get("state") == "closed":
+            memory = folder / "memory.md"
+            summary = folder / "summary.md"
+
+            if not memory.is_file():
+                bad.append("memory")
+            elif missing_part(memory.read_text()):
+                bad.append("memory")
+
+            if not summary.is_file():
+                bad.append("summary")
+
     try:
         check_store(root, role, name)
         if missing_message(root, role, name):
@@ -250,6 +276,12 @@ def scan_session(root: Path) -> dict[str, list[str]]:
     for role in sorted(base.iterdir()):
         bad.update(scan_role(root, role))
 
+    handoff = root / "out" / "agent" / "handoff"
+    if handoff.is_dir():
+        for path in sorted(handoff.glob("*.md")):
+            if missing_part(path.read_text()):
+                bad[f"handoff/{path.stem}"] = ["handoff"]
+
     return bad
 
 
@@ -265,6 +297,7 @@ def rotate_session(
 ) -> tuple[str, list[Path]]:
     from research.agent.handoff import write_handoff
 
+    check_part(handoff_text, "handoff")
     close_output = close_session(root, role, name, memory_text, summary_text, run)
     handoff_file = write_handoff(root, role, handoff_text)
     new_name, new_output = make_session(root, role, topic, run)
