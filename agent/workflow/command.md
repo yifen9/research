@@ -21,6 +21,13 @@
 - Session message appends a redacted message event to `message.jsonl`.
 - Session message ingests the message into the configured vector backend.
 
+## Session Round
+
+- Session round records one user message and one AI message as a single round.
+- Session round verifies the active backend before writing.
+- Session round appends both messages to `message.jsonl` through the session message path.
+- Session round ingests both messages into the configured vector backend.
+
 ## Session Heartbeat
 
 - Session heartbeat verifies vector entries for recorded messages.
@@ -33,6 +40,7 @@
 ## Session Check
 
 - Session check verifies session artifacts and vector coverage.
+- Session check rejects incomplete or malformed rounds.
 
 ## Close
 

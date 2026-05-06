@@ -9,10 +9,12 @@
 - Every recorded message is appended to `message.jsonl`.
 - Every recorded message is ingested into the configured vector backend.
 - Message text is redacted according to `config/agent.yaml` before durable write.
+- Round messages share one `round_id` and contain exactly one `user` part and one `ai` part.
+- Round messages record `source` and `backend` metadata.
 
 ## Session
 
-- `out/agent/session/<role>/<id>/meta.yaml`
+- `out/agent/session/<role>/<id>/session.yaml`
 - `out/agent/session/<role>/<id>/message.jsonl`
 
 ### Rule
