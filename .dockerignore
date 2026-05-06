@@ -1,4 +1,2 @@
-.env
-.git/
-out/
-src/*.egg-info/
+/.git/
+/out/

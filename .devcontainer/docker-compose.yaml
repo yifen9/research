@@ -2,43 +2,7 @@ services:
   research-dev:
     image: ghcr.io/yifen9/research-dev
     working_dir: /workspace
-    env_file:
-      - ../config/runtime/dev.env
+    env_file: "../config/env/.dev.env"
     volumes:
       - "..:/workspace"
-      - opencode-data:/home/vscode/.local/share/opencode
-      - opencode-skills:/home/vscode/.config/opencode/skills
     command: sleep infinity
-
-  qdrant:
-    image: qdrant/qdrant:v1.17-unprivileged
-    volumes:
-      - qdrant-data:/qdrant/storage
-
-  falkordb:
-    image: falkordb/falkordb:latest
-    volumes:
-      - falkordb-data:/data
-    healthcheck:
-      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
-      interval: 5s
-      timeout: 3s
-      retries: 30
-      start_period: 10s
-
-  graphiti:
-    image: zepai/knowledge-graph-mcp:standalone
-    depends_on:
-      falkordb:
-        condition: service_healthy
-    env_file:
-      - path: ../.env
-        required: false
-    volumes:
-      - ../config/external/graphiti/devcontainer.yaml:/app/mcp/config/config.yaml:ro
-
-volumes:
-  opencode-data:
-  opencode-skills:
-  qdrant-data:
-  falkordb-data:

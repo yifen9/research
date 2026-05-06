@@ -2,17 +2,13 @@
   "dockerComposeFile": "docker-compose.yaml",
   "service": "research-dev",
   "runServices": [
-    "research-dev",
-    "qdrant",
-    "falkordb",
-    "graphiti"
+    "research-dev"
   ],
   "workspaceFolder": "/workspace",
   "shutdownAction": "stopCompose",
   "updateRemoteUserUID": false,
   "postCreateCommand": "just init",
   "remoteEnv": {
-    "OPENCODE_CONFIG_DIR": "${containerEnv:OPENCODE_CONFIG_DIR}",
     "PATH": "${containerEnv:UV_TOOL_BIN_DIR}:${containerEnv:JS_TOOL_BIN_DIR}:/home/vscode/.local/bin:${containerEnv:PATH}"
   },
   "customizations": {
