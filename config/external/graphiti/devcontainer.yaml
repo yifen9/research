@@ -1,0 +1,25 @@
+server:
+  transport: "http"
+  host: "0.0.0.0"
+  port: 8000
+
+llm:
+  provider: "gemini"
+  model: "gemini-2.0-flash"
+  api_key: "${GOOGLE_API_KEY}"
+
+embedder:
+  provider: "gemini"
+  model: "embedding-001"
+  api_key: "${GOOGLE_API_KEY}"
+
+database:
+  provider: "falkordb"
+  providers:
+    falkordb:
+      uri: "${FALKORDB_URI:redis://falkordb:6379}"
+      password: "${FALKORDB_PASSWORD:}"
+      database: "research_graph"
+
+graphiti:
+  group_id: "${GRAPHITI_GROUP_ID:research}"

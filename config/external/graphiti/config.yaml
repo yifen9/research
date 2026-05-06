@@ -1,0 +1,21 @@
+server:
+  transport: "http"
+
+llm:
+  provider: "gemini"
+  model: "gemini-2.0-flash"
+
+embedder:
+  provider: "gemini"
+  model: "embedding-001"
+
+database:
+  provider: "falkordb"
+  providers:
+    falkordb:
+      uri: "${FALKORDB_URI:redis://localhost:6379}"
+      password: "${FALKORDB_PASSWORD:}"
+      database: "research_graph"
+
+graphiti:
+  group_id: "research"

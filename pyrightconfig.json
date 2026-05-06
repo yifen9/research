@@ -1,0 +1,10 @@
+{
+  "exclude": [
+    "out"
+  ],
+  "typeCheckingMode": "basic",
+  "venv": "venv",
+  "venvPath": "out/temp/python",
+  "reportMissingModuleSource": false,
+  "reportUnusedCallResult": false
+}

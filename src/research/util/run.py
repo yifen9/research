@@ -45,7 +45,11 @@ def env_value(key: str, value: str) -> str:
     if re.search(r"(?i)password|passwd|pwd|secret|token|key|credential", key):
         return "[REDACTED]"
 
-    value = re.sub(r"(?i)(password|passwd|pwd|secret|token|api[_-]?key)(\s*[:=]\s*)([^\s,;]+)", r"\1\2[REDACTED]", value)
+    value = re.sub(
+        r"(?i)(password|passwd|pwd|secret|token|api[_-]?key)(\s*[:=]\s*)([^\s,;]+)",
+        r"\1\2[REDACTED]",
+        value,
+    )
     value = re.sub(r"(?i)bearer\s+[a-z0-9._~+/=-]+", "Bearer [REDACTED]", value)
     value = re.sub(r"\b[A-Za-z0-9_=-]{32,}\b", "[REDACTED]", value)
     return value

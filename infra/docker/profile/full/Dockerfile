@@ -55,11 +55,28 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 
+RUN bun install -g \
+        @biomejs/biome \
+        pyright \
+        typescript \
+        typescript-language-server \
+        vscode-langservers-extracted \
+        yaml-language-server \
+    && biome --version \
+    && pyright --version \
+    && yaml-language-server --version
+
+
 RUN wget -O /tmp/quarto.deb https://github.com/quarto-dev/quarto-cli/releases/download/v1.6.43/quarto-1.6.43-linux-amd64.deb \
     && apt-get update \
     && apt-get install -y --no-install-recommends /tmp/quarto.deb \
     && quarto --version \
     && rm -rf /var/lib/apt/lists/* /tmp/quarto.deb
+
+
+RUN uv tool install graphifyy==0.7.8 \
+    && install -m 0755 /root/.local/bin/graphify /usr/local/bin/graphify \
+    && graphify --help >/dev/null
 
 
 WORKDIR /workspace

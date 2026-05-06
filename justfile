@@ -1,77 +1,70 @@
 set shell := ["bash", "-lc"]
 
+runtime := "set -a; source config/runtime/dev.env; set +a;"
+secrets := "set -a; [ ! -f .env ] || source .env; set +a;"
+
 default:
     just --list
 
 init:
+    just opencode-doctor
     just py-doctor
-    just s-agent-backend-write
-    just s-agent-backend-check
-    just s-rule-check
-    just doc-check
+    just graphify-doctor
+
+opencode-doctor:
+    mkdir -p /home/vscode/.config/opencode/skills/feynman
+    install -m 0644 config/external/opencode/skills/feynman/SKILL.md /home/vscode/.config/opencode/skills/feynman/SKILL.md
+
+check:
+    just py-check
+    just q-check
 
 py-doctor:
     just py-venv
     just py-sync
 
 py-venv:
-    test -d .venv || uv venv
+    {{runtime}} mkdir -p out/temp/python/egg-info && (test -d "$UV_PROJECT_ENVIRONMENT" || uv venv "$UV_PROJECT_ENVIRONMENT")
 
 py-sync:
-    uv sync --all-packages
+    {{runtime}} VIRTUAL_ENV= uv sync --all-packages
 
 py-sync-lock:
-    uv sync --locked --all-packages
+    {{runtime}} VIRTUAL_ENV= uv sync --locked --all-packages
 
-py-up:
-    uv lock --upgrade
+graphify-doctor:
+    {{runtime}} mkdir -p "$UV_TOOL_BIN_DIR" "$UV_TOOL_DIR"
+    {{runtime}} uv tool install graphifyy==0.7.8 --with openai
+    {{runtime}} "$UV_TOOL_BIN_DIR"/graphify --help >/dev/null
 
-py-add PKG:
-    uv add {{PKG}}
-
-py-add-dev PKG:
-    uv add --dev {{PKG}}
-
-py-rm PKG:
-    uv remove {{PKG}}
-
-py-rm-dev PKG:
-    uv remove --dev {{PKG}}
+graphify-nav:
+    {{runtime}} mkdir -p out/temp/graphify
+    {{runtime}} {{secrets}} "$UV_TOOL_BIN_DIR"/graphify extract . --out out/temp/graphify
+    {{runtime}} "$UV_TOOL_BIN_DIR"/graphify tree --graph out/temp/graphify/graphify-out/graph.json --root . --output out/temp/graphify/graphify-out/GRAPH_TREE.html --label research
+    python3 -c "from pathlib import Path; import shutil; path = Path('graphify-out'); path.exists() and shutil.rmtree(path)"
 
 py-fmt:
     just py-sync
-    uv run ruff format .
+    {{runtime}} VIRTUAL_ENV= uv run ruff format .
 
 py-fmt-check:
-    uv run ruff format --check .
+    {{runtime}} VIRTUAL_ENV= uv run ruff format --check .
 
 py-lint:
-    uv run ruff check . --fix
+    {{runtime}} VIRTUAL_ENV= uv run ruff check . --fix
 
 py-lint-check:
-    uv run ruff check .
+    {{runtime}} VIRTUAL_ENV= uv run ruff check .
 
-py-test:
-    uv run python -m unittest discover -s test
+py-check:
+    just py-fmt-check
+    just py-lint-check
+    just py-compile
 
 py-compile:
-    uv run python -m compileall src script test
+    {{runtime}} VIRTUAL_ENV= uv run python -m compileall src
 
-s-rule-check:
-    uv run python script/rule/check.py .
-
-s-agent-backend-write:
-    uv run python script/agent/backend/write.py .
-
-s-agent-backend-check:
-    uv run python script/agent/backend/check.py .
-
-s-agent-session-check:
-    uv run python script/agent/session/check.py .
-
-doc-check:
+q-check:
     quarto check
-    quarto render doc
-
-doc-render:
-    quarto render doc
+    quarto render doc/quarto
+    python3 -c "from pathlib import Path; import shutil; src = Path('doc/quarto/.quarto'); dst = Path('out/temp/quarto/.quarto'); dst.parent.mkdir(parents=True, exist_ok=True); shutil.rmtree(dst, ignore_errors=True); src.exists() and shutil.move(str(src), str(dst))"

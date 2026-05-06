@@ -1,13 +1,20 @@
 {
   "dockerComposeFile": "docker-compose.yaml",
   "service": "research-dev",
+  "runServices": [
+    "research-dev",
+    "qdrant",
+    "falkordb",
+    "graphiti"
+  ],
   "workspaceFolder": "/workspace",
   "shutdownAction": "stopCompose",
   "updateRemoteUserUID": false,
   "postCreateCommand": "just init",
-  "mounts": [
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/root/.ssh,type=bind,consistency=cached"
-  ],
+  "remoteEnv": {
+    "OPENCODE_CONFIG_DIR": "${containerEnv:OPENCODE_CONFIG_DIR}",
+    "PATH": "${containerEnv:UV_TOOL_BIN_DIR}:${containerEnv:JS_TOOL_BIN_DIR}:/home/vscode/.local/bin:${containerEnv:PATH}"
+  },
   "customizations": {
     "vscode": {
       "extensions": [
