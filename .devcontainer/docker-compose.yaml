@@ -2,7 +2,7 @@ services:
   research-dev:
     image: ghcr.io/yifen9/research-dev
     working_dir: /workspace
-    env_file: "../config/dev/.dev.env"
+    env_file: "../config/env/.dev.env"
     volumes:
       - "..:/workspace"
     command: sleep infinity
