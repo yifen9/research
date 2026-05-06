@@ -10,7 +10,19 @@
     "config/agent.yaml",
     "config/rule/index.yaml"
   ],
-  "plugin": ["oh-my-openagent"],
+  "plugin": [
+    "oh-my-openagent",
+    [
+      "./.opencode/plugins/session-round.mjs",
+      {
+        "role": "architect",
+        "source_prefix": "opencode",
+        "command": ["uv", "run", "python", "script/agent/session/auto_round.py"],
+        "limit": 20,
+        "max_bytes": 65536
+      }
+    ]
+  ],
   "share": "manual",
   "autoupdate": "notify",
   "permission": {

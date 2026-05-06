@@ -6,6 +6,8 @@ config:
     template: opencode.json
   - target: .opencode/oh-my-openagent.jsonc
     template: oh-my-openagent.jsonc
+  - target: .opencode/plugins/session-round.mjs
+    template: session-round.mjs
 
 check:
   - [opencode, --version]
