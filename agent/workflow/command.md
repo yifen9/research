@@ -14,6 +14,7 @@
 
 - Session new creates an active session artifact.
 - Session new connects to the configured vector backend before the session is accepted.
+- Session new writes the active initial context and mode guidance.
 
 ## Session Message
 
@@ -37,11 +38,13 @@
 
 - Close ends an active session.
 - Close writes memory before terminating.
+- Close memory follows `config/template/agent/memory.md`.
 
 ## Rotate
 
 - Rotate transfers an active session to a new session of the same role.
 - Rotate writes memory and handoff before terminating the old session.
+- Rotate handoff follows `config/template/agent/handoff.md`.
 
 ## Retire
 

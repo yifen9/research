@@ -160,6 +160,7 @@ word:
   - metric
   - mirror
   - missing
+  - mode
   - model
   - msg
   - name

@@ -24,6 +24,7 @@
 ## Handoff
 
 - `out/agent/handoff/<role>.md`
+- source template: `config/template/agent/handoff.md`
 
 ### Rule
 
@@ -34,6 +35,7 @@
 ## Memory
 
 - `out/agent/memory/<role>.md`
+- source template: `config/template/agent/memory.md`
 
 ### Rule
 

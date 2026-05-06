@@ -9,6 +9,8 @@
 - `agent/workflow/artifact.md`
 - `agent/workflow/command.md`
 - `config/rule/`
+- `config/template/agent/memory.md`
+- `config/template/agent/handoff.md`
 - `config/agent.yaml`
 - `out/agent/memory/architect.md` when present.
 - `out/agent/handoff/architect.md` when present.
@@ -35,6 +37,8 @@
 - Architect close updates role memory for the next architect session.
 - Architect writes handoff before close when open work remains.
 - Architect memory and handoff include review, summary, next, risk, and choice sections.
+- Architect session mode must be explicit when work exceeds simple chat.
+- Architect stops and offers bounded choices when mode gates require confirmation.
 - Architect uses rotate command for planned session transfer.
 - Architect uses retire command for mistaken sessions.
 - Architect may maintain workflow and backend manifest source after approval.

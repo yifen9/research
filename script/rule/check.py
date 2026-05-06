@@ -484,7 +484,13 @@ def check_agent(root: Path) -> list[tuple[Path, int, str, str]]:
 
     if path.is_file():
         text = read_text(path)
-        for item in ["config/rule/", "config/agent.yaml", "vector backend is required"]:
+        for item in [
+            "config/rule/",
+            "config/template/agent/memory.md",
+            "config/template/agent/handoff.md",
+            "config/agent.yaml",
+            "vector backend is required",
+        ]:
             if item not in text:
                 bad.append((rel, 0, item, "context"))
     else:
@@ -517,6 +523,40 @@ def check_agent(root: Path) -> list[tuple[Path, int, str, str]]:
 
     if not (root / "doc" / "_quarto.yaml").is_file():
         bad.append((Path("doc/_quarto.yaml"), 0, "doc", "miss"))
+
+    return bad
+
+
+def check_mode(root: Path, rule: dict[str, Any]) -> list[tuple[Path, int, str, str]]:
+    bad: list[tuple[Path, int, str, str]] = []
+    data = rule["mode"]
+    required = data["required"]
+    key_data = set(data["key"])
+    mode_data = data["data"]
+    path = Path("config/rule/mode.yaml")
+
+    for mode_name in required:
+        if mode_name not in mode_data:
+            bad.append((path, 0, str(mode_name), "mode"))
+            continue
+
+        item = mode_data[mode_name]
+        for key in key_data:
+            if key not in item:
+                bad.append((path, 0, f"{mode_name}.{key}", "mode"))
+
+    for file_name in ["memory", "handoff"]:
+        item_path = root / "config" / "template" / "agent" / f"{file_name}.md"
+        rel = Path("config/template/agent") / f"{file_name}.md"
+
+        if not item_path.is_file():
+            bad.append((rel, 0, file_name, "miss"))
+            continue
+
+        text = read_text(item_path)
+        for key in ["Review", "Summary", "Next", "Risk", "Choice"]:
+            if f"## {key}" not in text:
+                bad.append((rel, 0, key, "template"))
 
     return bad
 
@@ -591,6 +631,7 @@ def check_root(root: Path, logger: Logger) -> list[tuple[Path, int, str, str]]:
     bad = scan_file(root, pool, rule, logger)
     bad.extend(check_top(root, rule))
     bad.extend(check_agent(root))
+    bad.extend(check_mode(root, rule))
     return bad
 
 
