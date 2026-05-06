@@ -12,5 +12,7 @@ part:
   - opencode
   - bun
   - omo
+  - lsp
+  - graphify
   - gh
   - quarto

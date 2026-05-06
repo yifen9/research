@@ -10,6 +10,7 @@ from rich.progress import (
     MofNCompleteColumn,
     Progress as RichProgress,
     SpinnerColumn,
+    TaskID,
     TaskProgressColumn,
     TextColumn,
     TimeElapsedColumn,
@@ -41,7 +42,7 @@ class ConsoleSink:
     transient: bool
     progress: RichProgress | None
     started: bool
-    task_id: int | None
+    task_id: TaskID | None
     task_name: str | None
 
     def __call__(self, message: Message) -> None:
