@@ -1,15 +1,29 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from hashlib import sha256
 from pathlib import Path
 import re
 from typing import Any
+from uuid import uuid4
 
 from research.io.jsonl import append_jsonl
 
 
-SAFE_MESSAGE_KEY = {"time", "run", "role", "name", "session", "actor", "kind", "event", "message_id"}
+SAFE_MESSAGE_KEY = {
+    "time",
+    "run",
+    "role",
+    "name",
+    "session",
+    "actor",
+    "kind",
+    "event",
+    "message_id",
+    "round_id",
+    "part",
+    "source",
+    "backend",
+}
 ROLE_RE = re.compile(r"[a-z][a-z0-9-]*")
 SESSION_RE = re.compile(r"[0-9]{8}T[0-9]{6}-[a-z0-9]+(-[a-z0-9]+)*")
 
@@ -95,10 +109,9 @@ def append_message(root: Path, role: str, name: str, data: dict[str, Any]) -> Pa
 
 def message_record(actor: str, text: str, kind: str, run: str) -> dict[str, Any]:
     time = utc_now()
-    key = sha256(f"{time}\n{actor}\n{kind}\n{text}".encode("utf-8")).hexdigest()
     data: dict[str, Any] = {
         "time": time,
-        "message_id": key,
+        "message_id": uuid4().hex,
         "actor": actor,
         "kind": kind,
         "text": text,

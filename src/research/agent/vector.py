@@ -110,6 +110,9 @@ def add_message(root: Path, role: str, name: str, data: dict[str, Any]) -> str:
         "time": str(item.get("time", "")),
         "session": name,
     }
+    for key in ["round_id", "part", "source", "backend"]:
+        if key in item:
+            meta[key] = str(item[key])
     return add_text(root, role, name, text, meta)
 
 

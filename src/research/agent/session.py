@@ -1,14 +1,16 @@
 from __future__ import annotations
 
 from datetime import datetime
+from hashlib import sha256
 from pathlib import Path
 import re
 import shutil
 from typing import Any
 
-from research.agent.audit import append_event, append_message, session_dir, utc_now
+from research.agent.audit import append_event, append_message, message_record, message_file, session_dir, utc_now
 from research.agent.memory import write_memory
 from research.agent.vector import add_heartbeat, add_message, check_store, missing_message, sync_message
+from research.io.jsonl import read_jsonl
 from research.io.text import write_text
 from research.io.yaml import read_yaml, write_yaml
 
@@ -48,6 +50,14 @@ def write_session(root: Path, role: str, name: str, data: dict[str, Any]) -> Pat
     return Path(write_yaml(str(session_yaml(root, role, name)), data))
 
 
+def active_backend(root: Path, backend: str) -> None:
+    data = read_yaml(str(root / "config" / "agent.yaml"))
+    active = data["backend"]["active"]
+
+    if active != backend:
+        raise ValueError("backend mismatch")
+
+
 def check_part(text: str, kind: str) -> None:
     for part in TEMPLATE_PART:
         if f"## {part}" not in text:
@@ -75,6 +85,79 @@ def record_message(root: Path, role: str, name: str, data: dict[str, Any]) -> Pa
     path = append_message(root, role, name, data)
     add_message(root, role, name, data)
     return path
+
+
+def record_round(
+    root: Path,
+    role: str,
+    name: str,
+    backend: str,
+    user_text: str,
+    ai_text: str,
+    source: str,
+    run: str,
+) -> list[Path]:
+    role_ok(role)
+    active_backend(root, backend)
+    data = read_session(root, role, name)
+
+    if data["state"] != "active":
+        raise ValueError("session not active")
+
+    if not user_text.strip() or not ai_text.strip():
+        raise ValueError("empty message")
+
+    source = source.strip()
+    if not source:
+        raise ValueError("empty source")
+
+    check_store(root, role, name)
+    user_item = message_record("user", user_text, "round", run)
+    ai_item = message_record("ai", ai_text, "round", run)
+    round_id = sha256(
+        f"{name}\n{run}\n{user_item['message_id']}\n{ai_item['message_id']}".encode("utf-8")
+    ).hexdigest()
+    output: list[Path] = []
+
+    for part, item in [("user", user_item), ("ai", ai_item)]:
+        item["round_id"] = round_id
+        item["part"] = part
+        item["source"] = source
+        item["backend"] = backend
+
+    for item in [user_item, ai_item]:
+        output.append(append_message(root, role, name, item))
+
+    for item in [user_item, ai_item]:
+        add_message(root, role, name, item)
+
+    return output
+
+
+def bad_round(root: Path, role: str, name: str) -> list[str]:
+    path = message_file(root, role, name)
+    data: dict[str, list[str]] = {}
+
+    if not path.is_file():
+        return []
+
+    for item in read_jsonl(str(path)):
+        if not isinstance(item, dict):
+            continue
+        if item.get("kind") != "round":
+            continue
+        round_id = str(item.get("round_id", ""))
+        part = str(item.get("part", ""))
+        actor = str(item.get("actor", ""))
+        source = str(item.get("source", ""))
+        backend = str(item.get("backend", ""))
+        if not round_id or part not in {"user", "ai"} or actor != part or not source.strip() or not backend:
+            return ["round"]
+        if round_id not in data:
+            data[round_id] = []
+        data[round_id].append(part)
+
+    return [key for key, value in data.items() if sorted(value) != ["ai", "user"]]
 
 
 def initial_text(role: str) -> str:
@@ -223,6 +306,9 @@ def check_session(root: Path, role: str, name: str) -> list[str]:
     for child in ["session.yaml", "initial.md", "message.jsonl", "event.jsonl"]:
         if not (folder / child).is_file():
             bad.append(child)
+
+    if bad_round(root, role, name):
+        bad.append("round")
 
     if (folder / "session.yaml").is_file():
         data = read_session(root, role, name)
