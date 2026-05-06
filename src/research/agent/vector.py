@@ -1,58 +1,63 @@
 from __future__ import annotations
 
+from contextlib import contextmanager
+import fcntl
 from pathlib import Path
+from typing import Iterator
 from typing import Any
 
 from research.agent.audit import append_event, message_file, redact_data, utc_now
+from research.agent.registry import vector_conf, vector_kind, vector_path
 from research.agent.store import Store, default_store, qdrant_store, store_key
 from research.io.jsonl import read_jsonl
-from research.io.yaml import read_yaml
 
 
 def read_conf(root: Path) -> dict[str, Any]:
-    path = root / "config" / "agent.yaml"
-    if not path.is_file():
-        raise FileNotFoundError(str(path))
-    data = read_yaml(str(path))
-
-    if not isinstance(data, dict):
-        raise TypeError(str(path))
-
-    session = data.get("session")
-    if not isinstance(session, dict):
-        raise KeyError("session")
-
-    vector = session.get("vector")
-    if not isinstance(vector, dict):
-        raise KeyError("vector")
-
-    return vector
+    return vector_conf(root)
 
 
 def make_store(root: Path, data: dict[str, Any]) -> Store:
-    backend = str(data["backend"])
+    kind = vector_kind(root, data)
 
-    if backend == "local-jsonl":
-        return default_store(root)
+    path = vector_path(root, data)
 
-    if backend == "qdrant-local":
+    if kind == "local-jsonl":
+        return default_store(path)
+
+    if kind == "qdrant":
         collection = str(data["collection"])
         model = str(data["model"])
-        return qdrant_store(root, collection, model)
+        return qdrant_store(path, collection, model)
 
-    raise ValueError("unknown vector backend")
-
-
-def fail_kind(data: dict[str, Any]) -> str:
-    if data.get("required") is True:
-        return "fail"
-    kind = str(data["failure"])
-    if kind not in {"warn", "fail"}:
-        raise ValueError("bad vector failure")
-    return kind
+    raise ValueError("unknown vector kind")
 
 
-def log_event(root: Path, role: str, name: str, event: str, data: dict[str, Any]) -> Path:
+def lock_path(root: Path, data: dict[str, Any]) -> Path:
+    kind = vector_kind(root, data)
+    path = vector_path(root, data)
+
+    if kind == "qdrant":
+        return path / ".vector.lock"
+
+    return path.with_name(f"{path.name}.lock")
+
+
+@contextmanager
+def vector_lock(root: Path, data: dict[str, Any]) -> Iterator[Path]:
+    path = lock_path(root, data)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    with path.open("a", encoding="utf-8") as file:
+        fcntl.flock(file.fileno(), fcntl.LOCK_EX)
+        try:
+            yield path
+        finally:
+            fcntl.flock(file.fileno(), fcntl.LOCK_UN)
+
+
+def log_event(
+    root: Path, role: str, name: str, event: str, data: dict[str, Any]
+) -> Path:
     item = dict(data)
     item["time"] = utc_now()
     item["event"] = event
@@ -63,18 +68,20 @@ def log_event(root: Path, role: str, name: str, event: str, data: dict[str, Any]
 
 def check_store(root: Path, role: str, name: str) -> Store:
     data = read_conf(root)
-    store = make_store(root, data)
-    try:
-        store.connect()
-        log_event(root, role, name, "vector-connect", {"backend": str(data["backend"])})
-        return store
-    except OSError as error:
-        log_event(root, role, name, "vector-warning", {"error": str(error)})
-        raise
+    with vector_lock(root, data):
+        store = make_store(root, data)
+        try:
+            store.connect()
+            log_event(root, role, name, "vector-connect", {"backend": str(data["backend"])})
+            return store
+        except OSError as error:
+            log_event(root, role, name, "vector-warning", {"error": str(error)})
+            raise
 
 
-def add_text(root: Path, role: str, name: str, text: str, meta: dict[str, Any]) -> str:
-    data = read_conf(root)
+def store_add(
+    root: Path, role: str, name: str, data: dict[str, Any], text: str, meta: dict[str, Any]
+) -> str:
     store = make_store(root, data)
     try:
         key = store.add(role, text, meta)
@@ -91,13 +98,19 @@ def add_text(root: Path, role: str, name: str, text: str, meta: dict[str, Any]) 
         raise
 
 
+def add_text(root: Path, role: str, name: str, text: str, meta: dict[str, Any]) -> str:
+    data = read_conf(root)
+    with vector_lock(root, data):
+        return store_add(root, role, name, data, text, meta)
+
+
 def add_heartbeat(root: Path, role: str, name: str, run: str, time: str) -> str:
     text = f"session heartbeat role={role} session={name} run={run} time={time}"
     meta = {"kind": "heartbeat", "session": name, "run": run, "time": time}
     return add_text(root, role, name, text, meta)
 
 
-def add_message(root: Path, role: str, name: str, data: dict[str, Any]) -> str:
+def message_meta(role: str, name: str, data: dict[str, Any]) -> tuple[str, dict[str, Any]]:
     item = redact_data(data)
     if not isinstance(item, dict):
         raise TypeError("message")
@@ -113,7 +126,20 @@ def add_message(root: Path, role: str, name: str, data: dict[str, Any]) -> str:
     for key in ["round_id", "part", "source", "backend"]:
         if key in item:
             meta[key] = str(item[key])
-    return add_text(root, role, name, text, meta)
+    return text, meta
+
+
+def message_add(
+    root: Path, role: str, name: str, data: dict[str, Any], item: dict[str, Any]
+) -> str:
+    text, meta = message_meta(role, name, item)
+    return store_add(root, role, name, data, text, meta)
+
+
+def add_message(root: Path, role: str, name: str, data: dict[str, Any]) -> str:
+    conf = read_conf(root)
+    with vector_lock(root, conf):
+        return message_add(root, role, name, conf, data)
 
 
 def sync_message(root: Path, role: str, name: str) -> list[str]:
@@ -122,17 +148,18 @@ def sync_message(root: Path, role: str, name: str) -> list[str]:
         return []
 
     data = read_conf(root)
-    store = make_store(root, data)
     output: list[str] = []
 
-    for item in read_jsonl(str(path)):
-        if not isinstance(item, dict):
-            continue
-        text = str(item.get("text", ""))
-        meta = {"message_id": str(item.get("message_id", store_key(role, text, None)))}
-        key = store_key(role, text, meta)
-        if not store.has(key):
-            output.append(add_message(root, role, name, item))
+    with vector_lock(root, data):
+        store = make_store(root, data)
+        for item in read_jsonl(str(path)):
+            if not isinstance(item, dict):
+                continue
+            text = str(item.get("text", ""))
+            meta = {"message_id": str(item.get("message_id", store_key(role, text, None)))}
+            key = store_key(role, text, meta)
+            if not store.has(key):
+                output.append(message_add(root, role, name, data, item))
 
     return output
 
@@ -143,16 +170,17 @@ def missing_message(root: Path, role: str, name: str) -> list[str]:
         return []
 
     data = read_conf(root)
-    store = make_store(root, data)
     output: list[str] = []
 
-    for item in read_jsonl(str(path)):
-        if not isinstance(item, dict):
-            continue
-        text = str(item.get("text", ""))
-        meta = {"message_id": str(item.get("message_id", store_key(role, text, None)))}
-        key = store_key(role, text, meta)
-        if not store.has(key):
-            output.append(key)
+    with vector_lock(root, data):
+        store = make_store(root, data)
+        for item in read_jsonl(str(path)):
+            if not isinstance(item, dict):
+                continue
+            text = str(item.get("text", ""))
+            meta = {"message_id": str(item.get("message_id", store_key(role, text, None)))}
+            key = store_key(role, text, meta)
+            if not store.has(key):
+                output.append(key)
 
     return output

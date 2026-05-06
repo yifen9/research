@@ -3,6 +3,7 @@
 ## Initial Context
 
 - `agent/agent.md`
+- `agent/core.md`
 - `agent/workflow/role/architect.md`
 - `agent/workflow/session/architect.md`
 - `agent/workflow/lifecycle.md`

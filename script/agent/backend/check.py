@@ -47,7 +47,7 @@ def main(argv: list[str]) -> None:
 
     try:
         name = backend_name(read_config(root))
-        bad = check_backend(load_backend(root, name))
+        bad = check_backend(root, load_backend(root, name))
 
         if bad:
             error = RuntimeError("backend check failed")

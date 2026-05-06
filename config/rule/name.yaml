@@ -23,6 +23,7 @@ name:
     - Dockerfile
     - _manifest.md
     - _meta.json
+    - __init__.py
     - SOURCE.yaml
     - justfile
     - pyproject.toml

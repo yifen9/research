@@ -77,6 +77,100 @@ def load_word(root: Path, logger: Logger) -> set[str]:
     return pool
 
 
+def list_text(data: Any, name: str) -> list[str]:
+    if not isinstance(data, list):
+        raise TypeError(name)
+
+    return [str(item) for item in data]
+
+
+def map_text(data: Any, name: str) -> dict[str, Any]:
+    if not isinstance(data, dict):
+        raise TypeError(name)
+
+    return data
+
+
+def bad_path(text: str) -> bool:
+    path = Path(text)
+    return path.is_absolute() or ".." in path.parts
+
+
+def check_registry(
+    root: Path, rule: dict[str, Any]
+) -> list[tuple[Path, int, str, str]]:
+    bad: list[tuple[Path, int, str, str]] = []
+    path = Path("config/rule/registry.yaml")
+    data = map_text(rule["registry"], "registry")
+
+    for key in ["role", "state", "path", "vector", "check"]:
+        if key not in data or not isinstance(data[key], dict):
+            bad.append((path, 0, key, "registry"))
+
+    if bad:
+        return bad
+
+    role = map_text(data["role"], "role")
+    for key in ["allow", "template_part"]:
+        if key not in role or not isinstance(role[key], list):
+            bad.append((path, 0, key, "registry"))
+
+    if bad:
+        return bad
+
+    for role_name in list_text(role["allow"], "role"):
+        role_path = root / "agent" / "workflow" / "role" / f"{role_name}.md"
+        session_path = root / "agent" / "workflow" / "session" / f"{role_name}.md"
+        if not good_kebab(role_name):
+            bad.append((path, 0, role_name, "role"))
+        if not role_path.is_file():
+            bad.append((path, 0, role_name, "role"))
+        if not session_path.is_file():
+            bad.append((path, 0, role_name, "session"))
+
+    for part in list_text(role["template_part"], "template"):
+        for file_name in ["memory", "handoff"]:
+            item_path = root / "config" / "template" / "agent" / f"{file_name}.md"
+            if item_path.is_file() and f"## {part}" not in read_text(item_path):
+                bad.append((path, 0, part, "template"))
+
+    path_data = map_text(data["path"], "path")
+    for key in ["session", "vector", "memory", "handoff"]:
+        item = path_data.get(key)
+        if not isinstance(item, str) or bad_path(item):
+            bad.append((path, 0, key, "path"))
+
+    vector = map_text(data["vector"], "vector")
+    allow = vector.get("allow")
+    if not isinstance(allow, dict):
+        bad.append((path, 0, "vector", "allow"))
+    else:
+        for name, item in allow.items():
+            if not isinstance(item, dict):
+                bad.append((path, 0, str(name), "vector"))
+                continue
+            for key in ["kind", "path", "require"]:
+                if key not in item:
+                    bad.append((path, 0, f"{name}.{key}", "vector"))
+            if (
+                "path" in item
+                and isinstance(item["path"], str)
+                and bad_path(item["path"])
+            ):
+                bad.append((path, 0, str(name), "path"))
+            if "require" in item and not isinstance(item["require"], list):
+                bad.append((path, 0, str(name), "require"))
+
+    if not isinstance(vector.get("failure"), list):
+        bad.append((path, 0, "failure", "vector"))
+
+    check = map_text(data["check"], "check")
+    if not isinstance(check.get("allow"), list):
+        bad.append((path, 0, "check", "allow"))
+
+    return bad
+
+
 def split_name(name: str) -> list[str]:
     text = name.replace("-", "_")
     return [item for item in text.split("_") if item]
@@ -140,7 +234,12 @@ def skip_path(path: Path) -> bool:
 
     part = path.parts
 
-    if len(part) > 3 and part[0] == "project" and part[2] == "proposal" and part[3] == "version":
+    if (
+        len(part) > 3
+        and part[0] == "project"
+        and part[2] == "proposal"
+        and part[3] == "version"
+    ):
         return True
 
     if len(part) > 2 and part[0] == "project" and part[2] == "repo":
@@ -441,7 +540,7 @@ def check_conf(path: Path, rule: dict[str, Any]) -> list[tuple[Path, int, str, s
     return bad
 
 
-def check_agent(root: Path) -> list[tuple[Path, int, str, str]]:
+def check_agent(root: Path, rule: dict[str, Any]) -> list[tuple[Path, int, str, str]]:
     bad: list[tuple[Path, int, str, str]] = []
     conf_path = root / "config" / "agent.yaml"
     conf_rel = Path("config/agent.yaml")
@@ -450,9 +549,11 @@ def check_agent(root: Path) -> list[tuple[Path, int, str, str]]:
         return [(conf_rel, 0, "agent", "miss")]
 
     conf = read_yaml(str(conf_path))
+    registry = rule["registry"]
     backend = conf.get("backend", {})
     session = conf.get("session", {})
     vector = session.get("vector", {})
+    role = session.get("role", {})
 
     active = backend.get("active")
     if not isinstance(active, str):
@@ -466,25 +567,54 @@ def check_agent(root: Path) -> list[tuple[Path, int, str, str]]:
     if vector.get("failure") != "fail":
         bad.append((conf_rel, 9, str(vector.get("failure")), "fail"))
 
-    if not vector.get("backend"):
-        bad.append((conf_rel, 7, "backend", "miss"))
+    vector_name = vector.get("backend")
+    vector_allow = registry["vector"]["allow"]
+    if vector_name not in vector_allow:
+        bad.append((conf_rel, 7, str(vector_name), "vector"))
+    else:
+        for key in vector_allow[vector_name]["require"]:
+            if key not in vector:
+                bad.append((conf_rel, 0, str(key), "vector"))
+
+    role_name = role.get("active")
+    role_allow = registry["role"]["allow"]
+    if role_name not in role_allow:
+        bad.append((conf_rel, 0, str(role_name), "role"))
 
     role_dir = root / "agent" / "workflow" / "role"
     role_data = [path.stem for path in role_dir.glob("*.md")]
 
-    if "architect" not in role_data:
-        bad.append((Path("agent/workflow/role"), 0, "architect", "miss"))
+    for name in role_allow:
+        if name not in role_data:
+            bad.append((Path("agent/workflow/role"), 0, str(name), "miss"))
 
     for name in role_data:
-        if name != "architect":
+        if name not in role_allow:
             bad.append((Path("agent/workflow/role") / f"{name}.md", 0, name, "role"))
 
-    path = root / "agent" / "workflow" / "session" / "architect.md"
-    rel = Path("agent/workflow/session/architect.md")
+    path = root / "agent" / "agent.md"
+    rel = Path("agent/agent.md")
+    if path.is_file():
+        if "agent/core.md" not in read_text(path):
+            bad.append((rel, 0, "agent/core.md", "context"))
+    else:
+        bad.append((rel, 0, "agent", "miss"))
+
+    path = root / "agent" / "workflow" / "role" / f"{role_name}.md"
+    rel = Path("agent/workflow/role") / f"{role_name}.md"
+    if path.is_file():
+        if "agent/core.md" not in read_text(path):
+            bad.append((rel, 0, "agent/core.md", "context"))
+    else:
+        bad.append((rel, 0, str(role_name), "miss"))
+
+    path = root / "agent" / "workflow" / "session" / f"{role_name}.md"
+    rel = Path("agent/workflow/session") / f"{role_name}.md"
 
     if path.is_file():
         text = read_text(path)
         for item in [
+            "agent/core.md",
             "config/rule/",
             "config/template/agent/memory.md",
             "config/template/agent/handoff.md",
@@ -494,7 +624,7 @@ def check_agent(root: Path) -> list[tuple[Path, int, str, str]]:
             if item not in text:
                 bad.append((rel, 0, item, "context"))
     else:
-        bad.append((rel, 0, "architect", "miss"))
+        bad.append((rel, 0, str(role_name), "miss"))
 
     path = root / ".gitignore"
     rel = Path(".gitignore")
@@ -517,7 +647,14 @@ def check_agent(root: Path) -> list[tuple[Path, int, str, str]]:
     if (root / "template").exists():
         bad.append((Path("template"), 0, "template", "root"))
 
-    for item in ["_quarto.yaml", "index.qmd", "styles.css", "theme.scss", "favicon.png", "_extensions"]:
+    for item in [
+        "_quarto.yaml",
+        "index.qmd",
+        "styles.css",
+        "theme.scss",
+        "favicon.png",
+        "_extensions",
+    ]:
         if (root / item).exists():
             bad.append((Path(item), 0, item, "root"))
 
@@ -534,6 +671,7 @@ def check_mode(root: Path, rule: dict[str, Any]) -> list[tuple[Path, int, str, s
     key_data = set(data["key"])
     mode_data = data["data"]
     path = Path("config/rule/mode.yaml")
+    check_allow = set(rule["registry"]["check"]["allow"])
 
     for mode_name in required:
         if mode_name not in mode_data:
@@ -545,6 +683,10 @@ def check_mode(root: Path, rule: dict[str, Any]) -> list[tuple[Path, int, str, s
             if key not in item:
                 bad.append((path, 0, f"{mode_name}.{key}", "mode"))
 
+        for check in item.get("require_check", []):
+            if check not in check_allow:
+                bad.append((path, 0, str(check), "check"))
+
     for file_name in ["memory", "handoff"]:
         item_path = root / "config" / "template" / "agent" / f"{file_name}.md"
         rel = Path("config/template/agent") / f"{file_name}.md"
@@ -554,7 +696,7 @@ def check_mode(root: Path, rule: dict[str, Any]) -> list[tuple[Path, int, str, s
             continue
 
         text = read_text(item_path)
-        for key in ["Review", "Summary", "Next", "Risk", "Choice"]:
+        for key in rule["registry"]["role"]["template_part"]:
             if f"## {key}" not in text:
                 bad.append((rel, 0, key, "template"))
 
@@ -630,7 +772,13 @@ def check_root(root: Path, logger: Logger) -> list[tuple[Path, int, str, str]]:
     logger.info(jline("rule", "check", "scan", {"root": str(root)}))
     bad = scan_file(root, pool, rule, logger)
     bad.extend(check_top(root, rule))
-    bad.extend(check_agent(root))
+    registry_bad = check_registry(root, rule)
+    bad.extend(registry_bad)
+
+    if registry_bad:
+        return bad
+
+    bad.extend(check_agent(root, rule))
     bad.extend(check_mode(root, rule))
     return bad
 

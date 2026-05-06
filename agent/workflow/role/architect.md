@@ -12,6 +12,7 @@
 
 - Human chat.
 - `agent/agent.md`.
+- `agent/core.md`.
 - `config/rule/`.
 - `config/agent.yaml`.
 - Active backend manifest at `agent/backend/<name>/manifest.yaml`.

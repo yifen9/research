@@ -70,6 +70,7 @@ test("bridge uses argv and stdin", async () => {
     command: ["uv", "run", "python", "script/agent/session/auto_round.py"],
     root: "/repo",
     role: "architect",
+    bind: "opencode:s1",
     source: "opencode:s1:a1",
     userText: "hello",
     aiText: "answer",
@@ -78,7 +79,7 @@ test("bridge uses argv and stdin", async () => {
 
   assert.equal(call.cmd, "uv")
   assert.equal(call.options.shell, false)
-  assert.deepEqual(call.args.slice(-4), ["/repo", "architect", "opencode:s1:a1", "1000"])
+  assert.deepEqual(call.args.slice(-5), ["/repo", "architect", "opencode:s1", "opencode:s1:a1", "1000"])
   assert.equal(JSON.parse(call.data).ai_text, "answer")
 })
 
@@ -116,5 +117,6 @@ test("plugin records idle event once", async () => {
   }
 
   assert.equal(calls.length, 1)
+  assert.equal(calls[0].bind, "opencode:s1")
   assert.equal(calls[0].source, "opencode:s1:a1")
 })

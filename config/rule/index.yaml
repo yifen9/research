@@ -7,6 +7,7 @@ rule:
   - agent
   - ai
   - mode
+  - registry
 
 word:
   - core

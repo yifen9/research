@@ -41,20 +41,27 @@ def fail(run: Run, comp: str, error: BaseException) -> None:
 
 
 def main(argv: list[str]) -> None:
-    if len(argv) != 5:
-        raise ValueError("usage: auto_round.py ROOT ROLE SOURCE MAX_BYTES")
+    if len(argv) != 6:
+        raise ValueError("usage: auto_round.py ROOT ROLE BIND SOURCE MAX_BYTES")
 
     root = Path(argv[1]).resolve()
     role = argv[2]
-    source = argv[3]
-    max_byte = int(argv[4])
+    bind = argv[3]
+    source = argv[4]
+    max_byte = int(argv[5])
     script = Path(__file__).resolve()
     task = task_name(root, script)
 
     run = make_run(
         root=root,
         name=task,
-        params={"task": task, "role": role, "source": source, "max": max_byte},
+        params={
+            "task": task,
+            "role": role,
+            "bind": bind,
+            "source": source,
+            "max": max_byte,
+        },
         script=script,
         src=root / "src",
         config=root / "config" / "agent.yaml",
@@ -64,7 +71,9 @@ def main(argv: list[str]) -> None:
         data = read_input(max_byte)
         user_text = str(data["user_text"])
         ai_text = str(data["ai_text"])
-        output = record_active(root, role, user_text, ai_text, source, run.run_dir)
+        output = record_active(
+            root, role, bind, user_text, ai_text, source, run.run_dir
+        )
         run_ok(
             run,
             {
@@ -74,7 +83,14 @@ def main(argv: list[str]) -> None:
                 "output": [str(path) for path in output],
             },
         )
-    except (json.JSONDecodeError, ValueError, FileNotFoundError, OSError, KeyError, TypeError) as error:
+    except (
+        json.JSONDecodeError,
+        ValueError,
+        FileNotFoundError,
+        OSError,
+        KeyError,
+        TypeError,
+    ) as error:
         fail(run, "session-auto-round", error)
 
 

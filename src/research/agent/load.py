@@ -4,11 +4,16 @@ from pathlib import Path
 from typing import Any
 
 from research.agent.backend import BackendSpec, ConfigItem
+from research.agent.registry import path_check
 from research.io.yaml import read_yaml
 
 
 def read_manifest(root: Path, name: str) -> dict[str, Any]:
-    path = root / "agent" / "backend" / name / "manifest.yaml"
+    if Path(name).name != name:
+        raise ValueError("bad backend")
+
+    base = root / "agent" / "backend"
+    path = path_check(base, name) / "manifest.yaml"
     return read_yaml(str(path))
 
 

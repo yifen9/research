@@ -12,6 +12,7 @@ This repository is the control repository for personal research infrastructure.
 - `config/template/` is reusable template source.
 - `config/agent.yaml` selects the active backend and vector backend.
 - `agent/agent.md` is the agent entry guide.
+- `agent/core.md` is the structured operating doctrine.
 - `agent/workflow/` is the minimal architect workflow source.
 - `agent/backend/` is backend manifest and template source.
 - `doc/` contains the Quarto site source.
@@ -29,6 +30,7 @@ This repository is the control repository for personal research infrastructure.
 
 - Human chat goes through architect by default.
 - Dialogue with the human is Chinese by default; durable artifacts are English by default.
+- Architect sessions load `agent/core.md` as foundational operating doctrine.
 - Offer bounded choices to the human whenever possible.
 - The active backend is the only backend the human chats through.
 - Components must remain replaceable through explicit config and command contracts.

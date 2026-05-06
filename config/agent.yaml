@@ -3,6 +3,8 @@ backend:
 session:
   logging:
     message: redacted
+  role:
+    active: architect
   vector:
     backend: qdrant-local
     collection: agent-session

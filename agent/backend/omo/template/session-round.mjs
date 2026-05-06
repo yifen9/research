@@ -93,7 +93,7 @@ export function boundedMessage(reason) {
 export function callBridge(input, run = spawn) {
   checkSize(input.userText, input.maxBytes)
   checkSize(input.aiText, input.maxBytes)
-  const args = [...input.command.slice(1), input.root, input.role, input.source, String(input.maxBytes)]
+  const args = [...input.command.slice(1), input.root, input.role, input.bind, input.source, String(input.maxBytes)]
   const payload = JSON.stringify({ user_text: input.userText, ai_text: input.aiText })
   checkSize(payload, input.maxBytes)
   return new Promise((resolve, reject) => {
@@ -147,7 +147,8 @@ export async function server(input, options = {}) {
         console.warn(boundedMessage("missing complete user ai pair"))
         return
       }
-      const key = `${source}:${sessionID}:${round.assistantID}`
+      const bind = `${source}:${sessionID}`
+      const key = `${bind}:${round.assistantID}`
       if (seen.has(key)) {
         return
       }
@@ -156,6 +157,7 @@ export async function server(input, options = {}) {
         command,
         root: input.directory,
         role,
+        bind,
         source: key,
         userText: round.userText,
         aiText: round.aiText,

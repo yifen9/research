@@ -111,7 +111,9 @@ class QdrantStore:
 
     def find(self, role: str, text: str, limit: int) -> list[str]:
         store = self.make()
-        data = store.query(collection_name=self.collection, query_text=text, limit=limit)
+        data = store.query(
+            collection_name=self.collection, query_text=text, limit=limit
+        )
         output: list[str] = []
 
         for item in data:
@@ -165,11 +167,10 @@ def ensure_file(path: Path) -> Path:
     return path
 
 
-def default_store(root: Path) -> Store:
-    return LocalJsonlStore(root / "out" / "agent" / "vector" / "local.jsonl")
+def default_store(path: Path) -> Store:
+    return LocalJsonlStore(path)
 
 
-def qdrant_store(root: Path, collection: str, model: str) -> Store:
-    path = root / "out" / "agent" / "vector" / "qdrant"
+def qdrant_store(path: Path, collection: str, model: str) -> Store:
     ensure_file(path / "index.jsonl")
     return QdrantStore(path, collection, model)

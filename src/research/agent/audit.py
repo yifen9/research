@@ -6,6 +6,7 @@ import re
 from typing import Any
 from uuid import uuid4
 
+from research.agent.registry import path_value
 from research.io.jsonl import append_jsonl
 
 
@@ -33,7 +34,7 @@ def utc_now() -> str:
 
 
 def session_root(root: Path) -> Path:
-    return root / "out" / "agent" / "session"
+    return path_value(root, "session")
 
 
 def check_role(role: str) -> None:
@@ -85,7 +86,9 @@ def redact_data(data: Any) -> Any:
     if isinstance(data, dict):
         output: dict[str, Any] = {}
         for key, value in data.items():
-            if isinstance(key, str) and re.search(r"(?i)password|passwd|pwd|secret|token|api[_-]?key", key):
+            if isinstance(key, str) and re.search(
+                r"(?i)password|passwd|pwd|secret|token|api[_-]?key", key
+            ):
                 output[key] = "[REDACTED]"
             elif isinstance(key, str) and key in SAFE_MESSAGE_KEY:
                 output[key] = value

@@ -1,0 +1,45 @@
+registry:
+  role:
+    allow:
+      - architect
+    template_part:
+      - Review
+      - Summary
+      - Next
+      - Risk
+      - Choice
+  state:
+    allow:
+      - active
+      - closed
+      - retired
+  path:
+    session: out/agent/session
+    vector: out/agent/vector
+    memory: out/agent/memory
+    handoff: out/agent/handoff
+  vector:
+    allow:
+      local-jsonl:
+        kind: local-jsonl
+        path: local.jsonl
+        require: []
+      qdrant-local:
+        kind: qdrant
+        path: qdrant
+        require:
+          - collection
+          - model
+    failure:
+      - warn
+      - fail
+  check:
+    allow:
+      - backend
+      - compile
+      - project
+      - report
+      - rule
+      - session
+      - target
+      - test

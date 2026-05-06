@@ -169,6 +169,7 @@ word:
   - name
   - nest
   - new
+  - next
   - node
   - now
   - ok
@@ -215,6 +216,7 @@ word:
   - redact
   - reject
   - rel
+  - registry
   - release
   - remain
   - required
