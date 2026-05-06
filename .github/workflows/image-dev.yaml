@@ -5,7 +5,7 @@ on:
     branches:
       - "main"
     paths:
-      - "infra/docker/profile/full/Dockerfile"
+      - "config/infra/docker/profile/full/Dockerfile"
       - ".github/workflows/image-dev.yaml"
   workflow_dispatch:
 
@@ -30,7 +30,7 @@ jobs:
       - uses: docker/build-push-action@v7
         with:
           context: .
-          file: infra/docker/profile/full/Dockerfile
+          file: config/infra/docker/profile/full/Dockerfile
           push: true
           build-args: |
             QUARTO_VERSION=${{ env.QUARTO_VERSION }}
