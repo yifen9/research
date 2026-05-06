@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from hashlib import sha256
+import os
 from pathlib import Path
 import re
 import shutil
@@ -85,6 +86,86 @@ def record_message(root: Path, role: str, name: str, data: dict[str, Any]) -> Pa
     path = append_message(root, role, name, data)
     add_message(root, role, name, data)
     return path
+
+
+def active_name(root: Path, role: str) -> str:
+    role_ok(role)
+    base = root / "out" / "agent" / "session" / role
+    data: list[str] = []
+
+    if not base.is_dir():
+        raise ValueError("no active session")
+
+    for path in sorted(base.iterdir()):
+        if not path.is_dir():
+            continue
+        item = read_session(root, role, path.name)
+        if item.get("state") == "active":
+            data.append(path.name)
+
+    if len(data) == 0:
+        raise ValueError("no active session")
+
+    if len(data) > 1:
+        raise ValueError("multiple active sessions")
+
+    return data[0]
+
+
+def backend_active(root: Path) -> str:
+    data = read_yaml(str(root / "config" / "agent.yaml"))
+    return str(data["backend"]["active"])
+
+
+def has_round(root: Path, role: str, name: str, source: str) -> bool:
+    path = message_file(root, role, name)
+
+    if not path.is_file():
+        return False
+
+    for item in read_jsonl(str(path)):
+        if not isinstance(item, dict):
+            continue
+        if item.get("kind") == "round" and item.get("source") == source:
+            return True
+
+    return False
+
+
+def source_path(root: Path, role: str, name: str, source: str) -> Path:
+    key = sha256(source.encode("utf-8")).hexdigest()
+    return session_dir(root, role, name) / "source" / f"{key}.lock"
+
+
+def record_active(
+    root: Path,
+    role: str,
+    user_text: str,
+    ai_text: str,
+    source: str,
+    run: str,
+) -> list[Path]:
+    name = active_name(root, role)
+    backend = backend_active(root)
+    source = source.strip()
+    path = source_path(root, role, name, source)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        file = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+    except FileExistsError:
+        if has_round(root, role, name, source):
+            return []
+        raise ValueError("round locked")
+
+    os.close(file)
+
+    try:
+        if has_round(root, role, name, source):
+            return []
+        return record_round(root, role, name, backend, user_text, ai_text, source, run)
+    finally:
+        path.unlink(missing_ok=True)
 
 
 def record_round(

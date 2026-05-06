@@ -6,11 +6,14 @@ from tempfile import TemporaryDirectory
 import unittest
 
 import research.agent.session as agent_session
+from script.agent.session.auto_round import read_data
 from research.agent.audit import append_message, message_record
 from research.agent.audit import session_dir
 from research.agent.session import check_session
+from research.agent.session import active_name
 from research.agent.session import close_session
 from research.agent.session import make_session
+from research.agent.session import record_active
 from research.agent.session import record_message
 from research.agent.session import record_round
 from research.agent.session import rotate_session
@@ -103,6 +106,29 @@ class AgentSessionTest(unittest.TestCase):
         self.assertEqual(event_data[-1]["event"], "vector-heartbeat")
         self.assertEqual(vector_data[-1]["meta"]["kind"], "heartbeat")
 
+    def test_active(self) -> None:
+        with TemporaryDirectory() as temp:
+            root = Path(temp)
+            write_conf(root)
+
+            with self.assertRaises(ValueError):
+                active_name(root, "architect")
+
+            name, _ = make_session(root, "architect", "Active", "run-1")
+            data = active_name(root, "architect")
+
+        self.assertEqual(data, name)
+
+    def test_count(self) -> None:
+        with TemporaryDirectory() as temp:
+            root = Path(temp)
+            write_conf(root)
+            make_session(root, "architect", "One", "run-1")
+            make_session(root, "architect", "Two", "run-2")
+
+            with self.assertRaises(ValueError):
+                active_name(root, "architect")
+
     def test_round(self) -> None:
         with TemporaryDirectory() as temp:
             root = Path(temp)
@@ -120,6 +146,23 @@ class AgentSessionTest(unittest.TestCase):
         self.assertNotEqual(data[0]["round_id"], "[REDACTED]")
         self.assertEqual(vector[0]["meta"]["round_id"], data[0]["round_id"])
         self.assertEqual(vector[1]["meta"]["backend"], "omo")
+
+    def test_auto(self) -> None:
+        with TemporaryDirectory() as temp:
+            root = Path(temp)
+            write_conf(root)
+            name, _ = make_session(root, "architect", "Auto", "run-1")
+            record_active(root, "architect", "hello", "answer", "auto-source", "run-2")
+            record_active(root, "architect", "hello", "answer", "auto-source", "run-3")
+            folder = root / "out" / "agent" / "session" / "architect" / name
+            data = [item for item in read_jsonl(str(folder / "message.jsonl")) if item["kind"] == "round"]
+
+        self.assertEqual(len(data), 2)
+        self.assertEqual(data[0]["source"], "auto-source")
+
+    def test_size(self) -> None:
+        with self.assertRaises(ValueError):
+            read_data(b'{"user_text":"hello","ai_text":"answer"}', 10)
 
     def test_fail(self) -> None:
         with TemporaryDirectory() as temp:

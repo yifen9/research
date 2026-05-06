@@ -19,6 +19,7 @@ word:
   - ast
   - atom
   - audit
+  - auto
   - backend
   - bad
   - base
@@ -146,6 +147,7 @@ word:
   - link
   - list
   - load
+  - lock
   - log
   - logger
   - main
@@ -159,6 +161,7 @@ word:
   - meta
   - metric
   - mirror
+  - mjs
   - missing
   - mode
   - model
